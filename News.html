@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChumChon - NEWS</title>
+    <link rel="stylesheet" href="News.css">
+</head>
+
+<body>
+    <header>
+        <h1>ChumChon - NEWS</h1>
+        <div class="hamburger" onclick="toggleSettings()">☰</div>
+    </header>
+
+    <div id="settingsPanel" class="settings-panel hidden">
+        <h3>ตั้งค่าบัญชี</h3>
+        <p id="profName"></p>
+        <button onclick="logout()">ออกจากระบบ</button>
+    </div>
+
+    <main>
+        <div class="filter-bar">
+            <select id="newsFilter" onchange="loadNews()">
+                <option value="all">ทั้งหมด</option>
+                <option value="gov">ภัยธรรมชาติ (รัฐ)</option>
+                <option value="user">เหตุจากผู้ใช้</option>
+            </select>
+            <button onclick="openAddModal()">+ แจ้งเหตุ</button>
+        </div>
+        <div id="newsFeed"></div>
+    </main>
+
+    <div id="addModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>แจ้งเหตุ</h3>
+            <input type="text" id="newsTitle" placeholder="ชื่อเหตุการณ์">
+            <input type="datetime-local" id="newsTime">
+            <input type="text" id="newsLoc" placeholder="สถานที่">
+            <textarea id="newsDesc" placeholder="รายละเอียด"></textarea>
+            <input type="file" id="newsImg" accept="image/*">
+            <div id="mapPicker" onclick="setPin(event)">[คลิกเพื่อปักหมุดบนแผนที่]</div>
+            <button onclick="submitNews()">โพสต์</button>
+            <button onclick="closeModals()">ยกเลิก</button>
+        </div>
+    </div>
+
+    <footer>
+        <button class="active" onclick="location.href='News.html'">NEWS</button>
+        <button onclick="location.href='LOST&FOUND.html'">LOST & FOUND</button>
+        <button onclick="location.href='MAP.html'">MAP</button>
+    </footer>
+    <script src="News.js"></script>
+</body>
+
+</html>

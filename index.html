@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChumChon - Authentication</title>
+    <link rel="stylesheet" href="Att.css">
+</head>
+
+<body>
+    <div class="auth-container">
+        <h1>ChumChon</h1>
+
+        <div id="loginForm" class="form-section active">
+            <h2>เข้าสู่ระบบ</h2>
+            <input type="text" id="logUser" placeholder="Username">
+            <input type="password" id="logPass" placeholder="Password">
+            <button onclick="login()">Login</button>
+            <p onclick="toggleForm('signupForm')">สมัครสมาชิก</p>
+            <p onclick="toggleForm('forgotForm')">ลืมรหัสผ่าน?</p>
+        </div>
+
+        <div id="signupForm" class="form-section">
+            <h2>สมัครสมาชิก</h2>
+            <input type="text" id="regFirst" placeholder="ชื่อจริง">
+            <input type="text" id="regLast" placeholder="นามสกุล">
+            <input type="text" id="regUser" placeholder="Username">
+            <input type="text" id="regPhone" placeholder="เบอร์โทรศัพท์ 10 หลัก" maxlength="10">
+            <input type="password" id="regPass" placeholder="รหัสผ่าน">
+            <input type="password" id="regPassCon" placeholder="ยืนยันรหัสผ่าน">
+            <input type="file" id="regImg" accept="image/*">
+            <button onclick="register()">Sign Up</button>
+            <p onclick="toggleForm('loginForm')">กลับไปหน้าเข้าสู่ระบบ</p>
+        </div>
+
+        <div id="forgotForm" class="form-section">
+            <h2>ลืมรหัสผ่าน</h2>
+            <input type="text" id="fgFirst" placeholder="ชื่อจริง">
+            <input type="text" id="fgLast" placeholder="นามสกุล">
+            <input type="text" id="fgPhone" placeholder="เบอร์โทรศัพท์" maxlength="10">
+            <input type="password" id="fgNewPass" placeholder="รหัสผ่านใหม่">
+            <button onclick="forgotPassword()">รีเซ็ตรหัสผ่าน</button>
+            <p onclick="toggleForm('loginForm')">กลับไปหน้าเข้าสู่ระบบ</p>
+        </div>
+    </div>
+    <script src="Index.js"></script>
+</body>
+
+</html>

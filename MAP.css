@@ -1,0 +1,26 @@
+@import url('News.css');
+
+.map-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 70vh;
+    color: #666;
+    background: white;
+    border-radius: 12px;
+    margin: 20px auto;
+    max-width: 900px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.map-placeholder h2 {
+    color: #667eea;
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.map-placeholder p {
+    color: #999;
+    font-size: 16px;
+}
