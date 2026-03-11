@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost & Found</title>
+    <link rel="icon" type="image/png" href="data/logo/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/CSS/lostfound.css">
+    <link rel="stylesheet" href="/CSS/headfooter.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="navbar">
+        <div class="container nav-inner">
+            <div class="logo">ChomChon</div>
+            <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav id="navMenu" class="nav-menu">
+                <div id="userProfile" style="display: flex; align-items: center; gap: 15px;">
+                    <!-- Profile JS Inject -->
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+
+        <section class="page-header">
+
+            <h2 class="page-title">
+                <i class="fas fa-search-location"></i>
+                Lost & Found Items
+            </h2>
+
+            <button class="btn-add" onclick="document.getElementById('addItemModal').classList.add('show');">
+                <i class="fas fa-plus"></i>
+                Add Item
+            </button>
+
+        </section>
+
+        <!-- Filters -->
+        <section class="filters">
+
+            <button class="filter-btn active" data-filter="all">
+                <i class="fas fa-list"></i>
+                ทั้งหมด
+            </button>
+
+            <button class="filter-btn lost" data-filter="lost">
+                <i class="fas fa-search"></i>
+                Lost
+            </button>
+
+            <button class="filter-btn found" data-filter="found">
+                <i class="fas fa-hand-paper"></i>
+                Found
+            </button>
+
+        </section>
+
+        <section class="items-area">
+            <div id="itemsDisplay" class="items-container">
+                <p class="empty-text">ยังไม่มีรายการ</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Add Item Modal -->
+    <div id="addItemModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle"></i> Add New Item</h3>
+                <button class="close-modal" onclick="document.getElementById('addItemModal').classList.remove('show');">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="addItemForm" class="modal-form">
+                <div class="form-group">
+                    <label>Type</label>
+                    <div class="type-selector">
+                        <label class="radio-label">
+                            <input type="radio" name="itemType" value="lost" checked>
+                            <span class="radio-custom lost">Lost</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="itemType" value="found">
+                            <span class="radio-custom found">Found</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="itemName">Item Name</label>
+                    <input type="text" id="itemName" name="itemName" placeholder="e.g. Blue Wallet" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="itemDate">Date</label>
+                        <input type="date" id="itemDate" name="itemDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemLocation">Location</label>
+                        <input type="text" id="itemLocation" name="itemLocation" placeholder="e.g. Library" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="itemDetails">Details</label>
+                    <textarea id="itemDetails" name="itemDetails" rows="3" placeholder="Additional description..."
+                        required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Item Photo (Optional)</label>
+                    <div class="image-upload-wrapper">
+                        <input type="file" id="itemImage" name="itemImage" accept="image/*" class="file-input">
+                        <div id="imagePreview" class="preview-container">
+                            <i class="fas fa-camera"></i>
+                            <span>Click to upload or drag photo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-paper-plane"></i> Submit Item
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Popup -->
+    <div id="deletePopup" class="popup-overlay">
+        <div class="popup-box">
+            <i class="fas fa-exclamation-triangle popup-icon"></i>
+            <h3>ยืนยันการลบ</h3>
+            <p>คุณแน่ใจหรือไม่ว่าต้องการลบประกาศนี้?</p>
+
+            <div class="popup-actions">
+                <button class="btn-cancel" onclick="closeDeletePopup()">ยกเลิก</button>
+                <button class="btn-confirm" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> ลบ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-menu">
+            <a href="/HTML/news.html">NEWS</a>
+            <a href="/HTML/lostfound.html" class="active">LOST&FOUND</a>
+            <a href="/HTML/map.html">MAP</a>
+        </div>
+    </footer>
+
+    <script src="/JS/menu.js"></script>
+    <script src="/JS/nav.js"></script>
+    <script src="/JS/lostfound.js"></script>
+</body>
+
+</html>
