@@ -36,6 +36,15 @@ function setup() {
   } else if (sheetLF.getLastRow() === 0) {
     sheetLF.appendRow(['Timestamp', 'Type', 'ItemName', 'Date', 'Location', 'Details', 'Image', 'PosterName', 'PosterPhone']);
   }
+
+  // Setup สำหรับ News
+  let sheetNews = ss.getSheetByName('News');
+  if (!sheetNews) {
+    sheetNews = ss.insertSheet('News');
+    sheetNews.appendRow(['Timestamp', 'Title', 'Category', 'CategoryName', 'Date', 'Description', 'Source', 'Link', 'ImageUrl']);
+  } else if (sheetNews.getLastRow() === 0) {
+    sheetNews.appendRow(['Timestamp', 'Title', 'Category', 'CategoryName', 'Date', 'Description', 'Source', 'Link', 'ImageUrl']);
+  }
 }
 
 function doGet(e) {
@@ -60,6 +69,8 @@ function doPost(e) {
       return getLostFound(e);
     } else if (action === 'deleteLostFound') {
       return deleteLostFound(e);
+    } else if (action === 'getNews') {
+      return getNews(e);
     }
   } catch (err) {
     return createResponse({ success: false, message: err.message });
@@ -87,7 +98,7 @@ function addLostFound(e) {
     let imageUrl = "";
     if (e.parameter.imageFile) {
       try {
-        const folderId = "1yPkAoEQagiAnhESITOZ9is5Tg6DSQSUW"; // ใช้โฟลเดอร์เดียวกับโปรไฟล์
+        const folderId = "1yPkAoEQagiAnhESITOZ9is5Tg6DSQSUW";
         const splitBase = e.parameter.imageFile.split(',');
         const type = splitBase[0].split(';')[0].replace('data:', '');
         const byteCharacters = Utilities.base64Decode(splitBase[1]);
@@ -183,6 +194,33 @@ function deleteLostFound(e) {
   }
 }
 
+function getNews(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('News');
+    if (!sheet) return createResponse({ success: true, data: [] });
+
+    const values = sheet.getDataRange().getValues();
+    const headers = values[0];
+    const data = [];
+
+    for (let i = 1; i < values.length; i++) {
+      let row = {};
+      for (let j = 0; j < headers.length; j++) {
+        row[headers[j]] = values[i][j];
+      }
+      data.push(row);
+    }
+
+    // เรียงจากใหม่ไปเก่า
+    data.reverse();
+
+    return createResponse({ success: true, data: data });
+  } catch (error) {
+    return createResponse({ success: false, message: "เกิดข้อผิดพลาดในการดึงข่าว: " + error.message });
+  }
+}
+
 // --- ฟังก์ชันเดิม (Users) ---
 function register(e) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -199,7 +237,7 @@ function register(e) {
   let imageUrl = "";
   if (e.parameter.imageFile) {
     try {
-      const folderId = "1_OvDxs49wRdqd99esA_6fggEr43r4mCM";
+      const folderId = "1yPkAoEQagiAnhESITOZ9is5Tg6DSQSUW"; // ใช้โฟลเดอร์เดียวกันให้หมดตามที่ผู้ใช้แก้ล่าสุด
       const splitBase = e.parameter.imageFile.split(',');
       const type = splitBase[0].split(';')[0].replace('data:', '');
       const byteCharacters = Utilities.base64Decode(splitBase[1]);

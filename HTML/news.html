@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News</title>
+    <title>News - ข่าวสารและประกาศเตือนภัย</title>
     <link rel="icon" type="image/png" href="data/logo/logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,7 +16,7 @@
     <!-- Header -->
     <header class="navbar">
         <div class="container nav-inner">
-            <div class="logo">ChomChon</div>
+            <div class="logo">ChomChon - NEWS</div>
             <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
                 <span></span>
                 <span></span>
@@ -29,6 +29,43 @@
             </nav>
         </div>
     </header>
+
+    <main class="main-content">
+        <section class="page-header">
+            <h2 class="page-title">
+                <i class="fas fa-newspaper"></i>
+                ข่าวสารและประกาศ
+            </h2>
+            <button id="refreshBtn" class="btn-refresh" title="รีเฟรชข้อมูล">
+                <i class="fas fa-sync-alt"></i>
+                อัปเดต
+            </button>
+        </section>
+
+        <!-- Filters -->
+        <section class="news-filters">
+            <button class="filter-btn active" data-filter="all">ทั้งหมด</button>
+            <button class="filter-btn" data-filter="storm">พายุ</button>
+            <button class="filter-btn" data-filter="rain">ฝนตกหนัก</button>
+            <button class="filter-btn" data-filter="fire">ไฟป่า/PM2.5</button>
+            <button class="filter-btn" data-filter="health">สาธารณสุข</button>
+        </section>
+
+        <!-- News Body -->
+        <div id="loadingIndicator">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p>กำลังโหลดข่าวสาร...</p>
+        </div>
+
+        <div id="newsGrid" class="news-grid">
+            <!-- News cards will be injected here -->
+        </div>
+
+        <div id="emptyState" style="display: none;">
+            <i class="fas fa-info-circle"></i>
+            <h3>ไม่พบข้อมูลข่าวสารในขณะนี้</h3>
+        </div>
+    </main>
 
     <footer class="footer">
         <div class="footer-menu">
