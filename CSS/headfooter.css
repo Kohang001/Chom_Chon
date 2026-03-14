@@ -45,6 +45,190 @@
     --easing: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+}
+
+.main-content {
+    min-height: calc(100vh - 140px);
+    padding-bottom: 80px; /* Space for footer */
+}
+
+/* --- 3. Page Structure & Typography --- */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    background: white;
+    padding: 24px 30px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.section-badge {
+    display: inline-block;
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--primary);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.page-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+/* --- 4. Global Buttons --- */
+.btn-add {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s var(--easing);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+
+.btn-add:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    background: #1d4ed8;
+}
+
+/* --- 5. Unified Modals --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    width: 95%;
+    max-width: 600px;
+    border-radius: 24px;
+    overflow: hidden;
+    animation: modalPop 0.4s var(--easing);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+}
+
+@keyframes modalPop {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    padding: 20px 25px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid var(--accent);
+}
+
+.modal-header h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-modal {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.close-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: 25px;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    padding: 20px 25px;
+    background: #F8FAFC;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Responsiveness for Global Layout */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 20px;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .page-title {
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .btn-add {
+        justify-content: center;
+    }
+}
+
 /* --- 2. Navbar --- */
 .navbar {
     background: linear-gradient(135deg,
@@ -54,7 +238,7 @@
     padding: 1rem 0;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
     box-shadow: var(--shadow-sm);
     border-bottom: 4px solid var(--accent);
 }
@@ -72,10 +256,10 @@
 }
 
 .navbar .logo {
-    font-size: 1.5rem;
-    font-weight: 800;
+    font-size: 1.3rem;
+    font-weight: 700;
     color: white;
-    letter-spacing: -0.5px;
+    letter-spacing: 0.3px;
     transition: transform 0.2s ease;
 }
 
@@ -89,7 +273,7 @@
 }
 
 .navbar nav a {
-    font-family: 'Prompt', sans-serif;
+    font-family: 'Inter', 'Noto Sans Thai', sans-serif;
     color: white;
     text-decoration: none;
     font-weight: 600;
@@ -160,14 +344,18 @@
     justify-content: flex-start;
     align-items: center;
 
-    padding: 30px 20px;
+    padding: 30px 20px 100px 20px;
     gap: 20px;
 
     transform: translateY(-120%);
     transition: transform 0.35s var(--easing);
 
     backdrop-filter: blur(12px);
-    z-index: 99;
+    z-index: 1001;
+    
+    /* แก้ไขส่วนที่ล้นออกนอกหน้าจอ */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .nav-menu.active {
@@ -191,31 +379,39 @@
 
 /* mobile profile layout */
 #userProfile {
-    width: 100%;
-    max-width: 350px;
-
+    width: 95%;
+    max-width: 420px;
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 15px;
-
-    padding: 18px;
-
-    background: rgba(255, 255, 255, 0.85);
-    color: var(--text-primary);
-    border-radius: 16px;
-
-    backdrop-filter: blur(10px);
-
-    box-shadow: var(--shadow-md);
+    padding: 10px;
 }
 
-#userProfile img {
-    width: 250px !important;
-    height: 250px !important;
-}
+/* Override fixed sizes for mobile if needed */
+@media (max-width: 480px) {
+    .profile-card {
+        padding: 20px 15px;
+        gap: 12px;
+    }
+    
+    .profile-img-container {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .profile-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .profile-item {
+        padding: 8px;
+    }
 
-#userProfile button {
-    margin-left: auto !important;
+    .edit-section-container {
+        padding: 15px;
+        margin-top: 10px;
+    }
 }
 
 /* Profile Card */
@@ -261,21 +457,59 @@
     opacity: .35;
 }
 
-.profile-img {
+.profile-img-container {
+    position: relative;
     width: 240px;
     height: 240px;
+    margin: 10px 0 5px 0;
+    cursor: pointer;
+}
 
+.profile-img {
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     object-fit: cover;
-
     border: 6px solid white;
     outline: 6px solid var(--accent);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s var(--easing);
+}
 
-    box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.15),
-        0 0 0 8px rgba(37, 99, 235, 0.15);
+.img-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border: 6px solid transparent;
+}
 
-    margin: 10px 0 5px 0;
+.profile-img-container:hover .img-overlay {
+    opacity: 1;
+}
+
+.profile-img-container:hover .profile-img {
+    transform: scale(1.02);
+}
+
+.img-overlay i {
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+.img-overlay span {
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 /* rows */
@@ -314,27 +548,141 @@
     font-weight: 600;
 }
 
-/* logout */
-
-.logout-btn {
-    margin-top: 5px;
-    padding: 8px 18px;
-
-    border: none;
-    border-radius: 20px;
-
-    background: rgba(255, 99, 132, 0.25);
-    color: white;
-
-    font-family: 'Prompt';
-    font-weight: 500;
-
-    cursor: pointer;
-    transition: all .25s ease;
+.value-with-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-.logout-btn:hover {
-    background: rgba(255, 99, 132, 0.45);
+.mini-edit-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 2px 5px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.mini-edit-btn:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.profile-actions-v2 {
+    width: 100%;
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.action-card-btn {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: white;
+    color: var(--text-primary);
+    font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-card-btn:hover {
+    background: var(--bg-dark);
+    border-color: var(--primary-light);
+    color: var(--primary);
+}
+
+.logout-btn-v2 {
+    background: rgba(239, 68, 68, 0.05);
+    border-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.logout-btn-v2:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* Edit Section Container */
+.edit-section-container {
+    width: 100%;
+    margin-top: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 12px;
+    color: var(--text-secondary);
+}
+
+.input-with-icon input {
+    padding-left: 35px !important;
+}
+
+.edit-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: block;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.edit-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+    outline: none;
+}
+
+.save-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background: var(--bg-dark);
+    color: var(--text-secondary);
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
 }
 
 /* ===== Footer ===== */

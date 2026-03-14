@@ -14,9 +14,14 @@ function setup() {
   let sheetUsers = ss.getSheetByName('Users');
   if (!sheetUsers) {
     sheetUsers = ss.insertSheet('Users');
-    sheetUsers.appendRow(['FirstName', 'LastName', 'Username', 'Phone', 'Password', 'Image']);
+    sheetUsers.appendRow(['FirstName', 'LastName', 'Username', 'Phone', 'Password', 'Image', 'LastUpdate']);
+  } else if (sheetUsers.getLastRow() > 0) {
+    let headers = sheetUsers.getRange(1, 1, 1, sheetUsers.getLastColumn()).getValues()[0];
+    if (headers.indexOf('LastUpdate') === -1) {
+      sheetUsers.getRange(1, sheetUsers.getLastColumn() + 1).setValue('LastUpdate');
+    }
   } else if (sheetUsers.getLastRow() === 0) {
-    sheetUsers.appendRow(['FirstName', 'LastName', 'Username', 'Phone', 'Password', 'Image']);
+    sheetUsers.appendRow(['FirstName', 'LastName', 'Username', 'Phone', 'Password', 'Image', 'LastUpdate']);
   }
 
   // Setup สำหรับ Lost & Found
@@ -45,6 +50,15 @@ function setup() {
   } else if (sheetNews.getLastRow() === 0) {
     sheetNews.appendRow(['Timestamp', 'Title', 'Category', 'CategoryName', 'Date', 'Description', 'Source', 'Link', 'ImageUrl']);
   }
+
+  // Setup สำหรับ MapPins
+  let sheetMap = ss.getSheetByName('MapPins');
+  if (!sheetMap) {
+    sheetMap = ss.insertSheet('MapPins');
+    sheetMap.appendRow(['Timestamp', 'Title', 'Description', 'X', 'Y', 'PosterName']);
+  } else if (sheetMap.getLastRow() === 0) {
+    sheetMap.appendRow(['Timestamp', 'Title', 'Description', 'X', 'Y', 'PosterName']);
+  }
 }
 
 function doGet(e) {
@@ -71,6 +85,14 @@ function doPost(e) {
       return deleteLostFound(e);
     } else if (action === 'getNews') {
       return getNews(e);
+    } else if (action === 'updateUser') {
+      return updateUser(e);
+    } else if (action === 'addMapPin') {
+      return addMapPin(e);
+    } else if (action === 'getMapPins') {
+      return getMapPins(e);
+    } else if (action === 'deleteMapPin') {
+      return deleteMapPin(e);
     }
   } catch (err) {
     return createResponse({ success: false, message: err.message });
@@ -221,6 +243,208 @@ function getNews(e) {
   }
 }
 
+function updateUser(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('Users');
+    const data = sheet.getDataRange().getValues();
+    const oldUsername = e.parameter.oldUsername;
+    const subAction = e.parameter.subAction; // 'image', 'username', 'password'
+
+    let userRowIndex = -1;
+    let currentUserData = null;
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][2]).trim() === oldUsername.trim()) {
+        userRowIndex = i + 1;
+        currentUserData = data[i];
+        break;
+      }
+    }
+
+    if (userRowIndex === -1) return createResponse({ success: false, message: "ไม่พบผู้ใช้งาน" });
+
+    const now = getThailandDate(true);
+    const today = getThailandDate();
+
+    // --- ตรวจสอบ Cooldown (ยกเว้นเปลี่ยนรูปภาพ ที่อนุญาตให้เปลี่ยนได้บ่อยกว่า หรือตามต้องการ แต่ในที่นี้จะอนุญาตให้รูปภาพเปลี่ยนได้อิสระ) ---
+    if (subAction === 'username' || subAction === 'password') {
+      const lastUpdateStr = currentUserData[6];
+      if (lastUpdateStr) {
+        const lastUpdate = String(lastUpdateStr).split(' ')[0];
+        if (lastUpdate === today) {
+          return createResponse({ success: false, message: "คุณสามารถแก้ไข Username หรือ Password ได้วันละ 1 ครั้งเท่านั้น" });
+        }
+      }
+    }
+
+    if (subAction === 'image') {
+      // --- อัปเดตเฉพาะรูปภาพ ---
+      if (!e.parameter.imageFile) return createResponse({ success: false, message: "ไม่พบไฟล์รูปภาพ" });
+      
+      const folderId = "1_OvDxs49wRdqd99esA_6fggEr43r4mCM";
+      const splitBase = e.parameter.imageFile.split(',');
+      const type = splitBase[0].split(';')[0].replace('data:', '');
+      const byteCharacters = Utilities.base64Decode(splitBase[1]);
+      const fileName = oldUsername + "_profile_" + new Date().getTime();
+      const blob = Utilities.newBlob(byteCharacters, type, fileName);
+
+      let fileMetadata = { name: fileName, mimeType: type, parents: [folderId] };
+      const createdFile = Drive.Files.create(fileMetadata, blob, { fields: "id, webViewLink" });
+      Drive.Permissions.create({ role: "reader", type: "anyone" }, createdFile.id);
+
+      const newImageUrl = createdFile.webViewLink;
+      sheet.getRange(userRowIndex, 6).setValue(newImageUrl);
+      
+      return createResponse({ success: true, message: "เปลี่ยนรูปโปรไฟล์สำเร็จ", newImage: newImageUrl });
+
+    } else if (subAction === 'username') {
+      // --- อัปเดต Username ---
+      const newUsername = e.parameter.newUsername;
+      if (!newUsername || newUsername === oldUsername) return createResponse({ success: false, message: "Username ใหม่ต้องไม่ว่างและไม่ซ้ำเดิม" });
+
+      // เช็คซ้ำกับคนอื่น
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][2]).trim() === newUsername.trim()) {
+          return createResponse({ success: false, message: "Username นี้มีผู้ใช้งานแล้ว" });
+        }
+      }
+
+      sheet.getRange(userRowIndex, 3).setValue(newUsername);
+      sheet.getRange(userRowIndex, 7).setValue(now);
+
+      // ตามไปแก้ใน LostFound
+      const sheetLF = ss.getSheetByName('LostFound');
+      if (sheetLF) {
+        const lfValues = sheetLF.getDataRange().getValues();
+        for (let i = 1; i < lfValues.length; i++) {
+          if (String(lfValues[i][7]) === oldUsername) {
+            sheetLF.getRange(i + 1, 8).setValue(newUsername);
+          }
+        }
+      }
+
+      return createResponse({ success: true, message: "เปลี่ยน Username สำเร็จ", newUsername: newUsername });
+
+    } else if (subAction === 'password') {
+      // --- อัปเดต Password ---
+      const oldPasswordParam = e.parameter.oldPassword;
+      const newPassword = e.parameter.newPassword;
+      const storedPassword = String(currentUserData[4]);
+
+      if (storedPassword !== oldPasswordParam) {
+        return createResponse({ success: false, message: "รหัสผ่านเดิมไม่ถูกต้อง" });
+      }
+
+      if (!newPassword || newPassword.length < 4) {
+        return createResponse({ success: false, message: "รหัสผ่านใหม่ต้องมีความยาวอย่างน้อย 4 ตัวอักษร" });
+      }
+
+      sheet.getRange(userRowIndex, 5).setValue(newPassword);
+      sheet.getRange(userRowIndex, 7).setValue(now);
+
+      return createResponse({ success: true, message: "เปลี่ยนรหัสผ่านสำเร็จ" });
+    }
+
+    return createResponse({ success: false, message: "Sub-action ไม่ถูกต้อง" });
+
+  } catch (error) {
+    console.error("updateUser error:", error.message);
+    return createResponse({ success: false, message: "เกิดข้อผิดพลาด: " + error.message });
+  }
+}
+
+function addMapPin(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName('MapPins');
+    if (!sheet) {
+      sheet = ss.insertSheet('MapPins');
+      sheet.appendRow(['Timestamp', 'Title', 'Description', 'X', 'Y', 'PosterName']);
+    }
+
+    sheet.appendRow([
+      e.parameter.timestamp,
+      e.parameter.title,
+      e.parameter.description,
+      e.parameter.x,
+      e.parameter.y,
+      e.parameter.posterName
+    ]);
+
+    return createResponse({ success: true, message: "ปักหมุดสำเร็จ" });
+  } catch (err) {
+    return createResponse({ success: false, message: err.message });
+  }
+}
+
+function getMapPins(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('MapPins');
+    if (!sheet) return createResponse({ success: true, data: [] });
+
+    const values = sheet.getDataRange().getValues();
+    const headers = values[0];
+    const data = [];
+
+    for (let i = 1; i < values.length; i++) {
+      let row = {};
+      for (let j = 0; j < headers.length; j++) {
+        row[headers[j]] = values[i][j];
+      }
+      data.push(row);
+    }
+
+    return createResponse({ success: true, data: data });
+  } catch (err) {
+    return createResponse({ success: false, message: err.message });
+  }
+}
+
+function deleteMapPin(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('MapPins');
+    if (!sheet) return createResponse({ success: false, message: "ไม่พบชีตข้อมูล" });
+
+    const timestamp = e.parameter.timestamp;
+    const posterName = e.parameter.posterName;
+
+    const values = sheet.getDataRange().getValues();
+    for (let i = 1; i < values.length; i++) {
+      if (String(values[i][0]) === String(timestamp) && String(values[i][5]) === String(posterName)) {
+        sheet.deleteRow(i + 1);
+        return createResponse({ success: true, message: "ลบประกาศเรียบร้อยแล้ว" });
+      }
+    }
+
+    return createResponse({ success: false, message: "ไม่พบรายการที่ต้องการลบ หรือคุณไม่ใช่เจ้าของประกาศ" });
+  } catch (err) {
+    return createResponse({ success: false, message: err.message });
+  }
+}
+
+function getThailandDate(withTime = false) {
+  const now = new Date();
+  const options = { timeZone: "Asia/Bangkok", year: 'numeric', month: '2-digit', day: '2-digit' };
+  if (withTime) {
+    options.hour = '2-digit';
+    options.minute = '2-digit';
+    options.second = '2-digit';
+    options.hour12 = false;
+  }
+
+  const formatter = new Intl.DateTimeFormat('en-CA', options); // en-CA gives YYYY-MM-DD
+  let parts = formatter.formatToParts(now);
+  let dateStr = `${parts.find(p => p.type === 'year').value}-${parts.find(p => p.type === 'month').value}-${parts.find(p => p.type === 'day').value}`;
+
+  if (withTime) {
+    dateStr += ` ${parts.find(p => p.type === 'hour').value}:${parts.find(p => p.type === 'minute').value}:${parts.find(p => p.type === 'second').value}`;
+  }
+
+  return dateStr;
+}
+
 // --- ฟังก์ชันเดิม (Users) ---
 function register(e) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -237,7 +461,7 @@ function register(e) {
   let imageUrl = "";
   if (e.parameter.imageFile) {
     try {
-      const folderId = "1yPkAoEQagiAnhESITOZ9is5Tg6DSQSUW"; // ใช้โฟลเดอร์เดียวกันให้หมดตามที่ผู้ใช้แก้ล่าสุด
+      const folderId = "1_OvDxs49wRdqd99esA_6fggEr43r4mCM";
       const splitBase = e.parameter.imageFile.split(',');
       const type = splitBase[0].split(';')[0].replace('data:', '');
       const byteCharacters = Utilities.base64Decode(splitBase[1]);

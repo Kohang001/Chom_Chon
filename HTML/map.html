@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map</title>
     <link rel="icon" type="image/png" href="data/logo/logo.png">
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/CSS/map.css">
     <link rel="stylesheet" href="/CSS/headfooter.css">
@@ -29,6 +29,92 @@
             </nav>
         </div>
     </header>
+
+    <main class="main-content">
+        <div class="container">
+            <section class="page-header">
+            <div class="header-text">
+                <span class="section-badge">Community Interaction</span>
+                <h1 class="page-title">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Community Map
+                </h1>
+                <p class="page-subtitle">แผนที่แจ้งข่าวสารและเหตุการณ์ต่างๆ ในชุมชน</p>
+            </div>
+            <button class="btn-add" id="addReportBtn">
+                <i class="fas fa-plus"></i>
+                แจ้งเหตุการณ์
+            </button>
+        </section>
+
+            <!-- Map Container -->
+            <div class="map-container">
+                <div class="map-wrapper" id="mapWrapper">
+                    <img src="/assets/Map.png" alt="Community Map" class="community-map" id="mapImage">
+                    <div class="pins-overlay" id="pinsOverlay">
+                        <!-- Pins will be injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report List -->
+            <div class="report-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-list-ul"></i> รายการแจ้งเหตุล่าสุด</h2>
+                </div>
+                <div id="reportList" class="report-grid">
+                    <!-- Cards will be injected here -->
+                    <div class="loading-state">
+                        <i class="fas fa-spinner fa-spin"></i> กำลังโหลดข้อมูล...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Report Modal -->
+    <div id="pinModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-map-marker-alt"></i> แจ้งเหตุการณ์ใหม่</h3>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Location Picker Map inside Modal -->
+                <div class="picker-container">
+                    <p class="picker-label">ขั้นตอนที่ 1: คลิกเลือกตำแหน่งบนแผนที่</p>
+                    <div class="picker-wrapper" id="pickerWrapper">
+                        <img src="/assets/Map.png" alt="Picker Map" class="picker-map">
+                        <div class="picker-pins" id="pickerPins">
+                            <!-- Temp pin will show here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-section">
+                    <p class="picker-label">ขั้นตอนที่ 2: ระบุรายละเอียด</p>
+                    <div class="input-group">
+                        <label>หัวข้อเหตุการณ์</label>
+                        <input type="text" id="pinTitle" placeholder="เช่น อุบัติเหตุ, พื้นที่ก่อสร้าง">
+                    </div>
+                    <div class="input-group">
+                        <label>รายละเอียด</label>
+                        <textarea id="pinDescription" placeholder="ระบุรายละเอียดเพิ่มเติม..."></textarea>
+                    </div>
+                </div>
+
+                <div class="location-picker-info" id="locationStatus">
+                    <i class="fas fa-info-circle"></i> <span>ยังไม่ได้เลือกตำแหน่ง</span>
+                </div>
+                <input type="hidden" id="coordX">
+                <input type="hidden" id="coordY">
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-btn" id="cancelBtn">ยกเลิก</button>
+                <button class="btn-add" id="submitPin">ยืนยันการปักหมุด</button>
+            </div>
+        </div>
+    </div>
 
     <footer class="footer">
         <div class="footer-menu">

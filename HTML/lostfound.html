@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lost & Found</title>
     <link rel="icon" type="image/png" href="data/logo/logo.png">
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/CSS/lostfound.css">
     <link rel="stylesheet" href="/CSS/headfooter.css">
@@ -33,17 +33,18 @@
     <main class="main-content">
 
         <section class="page-header">
-
-            <h2 class="page-title">
-                <i class="fas fa-search-location"></i>
-                Lost & Found Items
-            </h2>
-
+            <div class="header-text">
+                <span class="section-badge">Community Service</span>
+                <h1 class="page-title">
+                    <i class="fas fa-search-location"></i>
+                    Lost & Found
+                </h1>
+                <p class="page-subtitle">ประกาศสิ่งของสูญหายและตามหาเจ้าของในชุมชน</p>
+            </div>
             <button class="btn-add" onclick="document.getElementById('addItemModal').classList.add('show');">
                 <i class="fas fa-plus"></i>
-                Add Item
+                แจ้งรายการ
             </button>
-
         </section>
 
         <!-- Filters -->
@@ -78,63 +79,67 @@
     <div id="addItemModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-plus-circle"></i> Add New Item</h3>
+                <h3><i class="fas fa-plus-circle"></i> แจ้งรายการใหม่</h3>
                 <button class="close-modal" onclick="document.getElementById('addItemModal').classList.remove('show');">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form id="addItemForm" class="modal-form">
-                <div class="form-group">
-                    <label>Type</label>
-                    <div class="type-selector">
-                        <label class="radio-label">
-                            <input type="radio" name="itemType" value="lost" checked>
-                            <span class="radio-custom lost">Lost</span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="itemType" value="found">
-                            <span class="radio-custom found">Found</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="itemName">Item Name</label>
-                    <input type="text" id="itemName" name="itemName" placeholder="เช่น กระเป๋าเงิน" required>
-                </div>
-
-                <div class="form-row">
+            <div class="modal-body">
+                <form id="addItemForm" class="modal-form">
                     <div class="form-group">
-                        <label for="itemDate">Date</label>
-                        <input type="date" id="itemDate" name="itemDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="itemLocation">Location</label>
-                        <input type="text" id="itemLocation" name="itemLocation" placeholder="เช่น บ้าน" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="itemDetails">Details</label>
-                    <textarea id="itemDetails" name="itemDetails" rows="3" placeholder="รายละเอียดเพิ่มเติม"
-                        required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Item Photo (Optional)</label>
-                    <div class="image-upload-wrapper">
-                        <input type="file" id="itemImage" name="itemImage" accept="image/*" class="file-input">
-                        <div id="imagePreview" class="preview-container">
-                            <i class="fas fa-camera"></i>
-                            <span>คลิกเพื่อเพิ่มรูป</span>
+                        <label>ประเภทประกาศ</label>
+                        <div class="type-selector">
+                            <label class="radio-label">
+                                <input type="radio" name="itemType" value="lost" checked>
+                                <span class="radio-custom lost">ของหาย (Lost)</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="itemType" value="found">
+                                <span class="radio-custom found">พบของ (Found)</span>
+                            </label>
                         </div>
                     </div>
-                </div>
 
-                <button type="submit" class="btn-submit">
-                    <i class="fas fa-paper-plane"></i> Submit Item
+                    <div class="form-group">
+                        <label for="itemName">ชื่อสิ่งของ</label>
+                        <input type="text" id="itemName" name="itemName" placeholder="เช่น กระเป๋าเงิน, กุญแจรถ" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="itemDate">วันที่</label>
+                            <input type="date" id="itemDate" name="itemDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="itemLocation">สถานที่</label>
+                            <input type="text" id="itemLocation" name="itemLocation" placeholder="เช่น ตึก A, โรงอาหาร" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="itemDetails">รายละเอียดเพิ่มเติม</label>
+                        <textarea id="itemDetails" name="itemDetails" rows="3" placeholder="ระบุลักษณะเด่น หรือที่อยู่ที่ชัดเจน"
+                            required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>รูปภาพประกอบ (ถ้ามี)</label>
+                        <div class="image-upload-wrapper">
+                            <input type="file" id="itemImage" name="itemImage" accept="image/*" class="file-input">
+                            <div id="imagePreview" class="preview-container">
+                                <i class="fas fa-camera"></i>
+                                <span>คลิกเพื่อแนบรูปภาพ</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-btn" onclick="document.getElementById('addItemModal').classList.remove('show');">ยกเลิก</button>
+                <button type="submit" form="addItemForm" class="btn-add">
+                    <i class="fas fa-paper-plane"></i> ยืนยันประกาศ
                 </button>
-            </form>
+            </div>
         </div>
     </div>
 

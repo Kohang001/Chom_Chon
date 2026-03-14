@@ -127,9 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             <p class="poster-phone"><i class="fas fa-phone-alt"></i> ${item.PosterPhone ? (item.PosterPhone.toString().startsWith('0') ? item.PosterPhone : '0' + item.PosterPhone) : 'ไม่ระบุเบอร์'}</p>
                         </div>
                     </div>
-                    <div class="item-footer">
-                        <small>${item.Timestamp}</small>
-                    </div>
                 </div>
             `;
         }).join('');
