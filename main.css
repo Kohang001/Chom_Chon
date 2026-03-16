@@ -11,9 +11,9 @@ body {
     justify-content: center;
     align-items: center;
 
-    background: linear-gradient(135deg, #4f46e5, #7c3aed, #9333ea);
-    background-size: 200% 200%;
-    animation: bgMove 10s infinite alternate;
+    background: linear-gradient(135deg, #312e81, #4f46e5, #9333ea, #e879f9);
+    background-size: 300% 300%;
+    animation: bgMove 12s ease infinite alternate;
 }
 
 @keyframes bgMove {
@@ -28,16 +28,16 @@ body {
 
 .auth-container {
     width: 100%;
-    max-width: 420px;
-    padding: 40px 35px;
+    max-width: 440px;
+    padding: 45px 40px;
 
-    backdrop-filter: blur(18px);
-    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(24px);
+    background: rgba(255, 255, 255, 0.1);
 
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 24px;
 
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 
     text-align: center;
     color: white;
@@ -48,19 +48,30 @@ body {
 @keyframes fadeUp {
     from {
         opacity: 0;
-        transform: translateY(25px);
+        transform: translateY(20px) scale(0.97);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
+.auth-container > * {
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.auth-container h1 { animation-delay: 0.1s; }
+.auth-container .form-section { animation-delay: 0.2s; }
+.auth-container p { animation-delay: 0.3s; }
+
+
 .auth-container h1 {
-    font-size: 26px;
-    margin-bottom: 25px;
-    font-weight: 700;
+    font-size: 30px;
+    margin-bottom: 30px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 
 .form-section {
@@ -81,9 +92,10 @@ body {
 }
 
 .title {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 10px;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.2px;
 }
 
 .flex {
@@ -93,17 +105,22 @@ body {
 
 input {
     width: 100%;
-    padding: 12px 14px;
+    padding: 14px 16px;
 
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(0, 0, 0, 0.15);
     color: white;
 
-    font-size: 14px;
+    font-size: 15px;
+    backdrop-filter: blur(14px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-    transition: .25s;
+input:hover {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 input::placeholder {
@@ -112,9 +129,10 @@ input::placeholder {
 
 input:focus {
     outline: none;
-    border: 1px solid #fff;
-    background: rgba(255, 255, 255, 0.35);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    background: rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
 }
 
 input[type="file"] {
@@ -123,43 +141,48 @@ input[type="file"] {
 }
 
 button {
-    margin-top: 5px;
-    padding: 12px;
+    margin-top: 8px;
+    padding: 14px;
 
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
 
-    background: white;
-    color: #5b21b6;
+    background: #ffffff;
+    color: #4338ca;
 
-    font-weight: 600;
-    font-size: 15px;
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 
     cursor: pointer;
 
-    transition: .25s;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
 button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    background: #f8fafc;
 }
 
 button:active {
     transform: scale(.98);
 }
 
-p {
-    font-size: 13px;
-    color: #e5e7eb;
+.form-section p {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
     cursor: pointer;
-    margin-top: 5px;
-    transition: .2s;
+    margin-top: 8px;
+    transition: all 0.2s;
 }
 
-p:hover {
+.form-section p:hover {
     color: white;
-    text-decoration: underline;
+    text-shadow: 0 0 8px rgba(255,255,255,0.6);
 }
 
 @media (max-width:480px) {

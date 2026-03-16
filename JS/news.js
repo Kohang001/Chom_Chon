@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const emptyState = document.getElementById('emptyState');
     const refreshBtn = document.getElementById('refreshBtn');
     const filters = document.querySelectorAll('.filter-btn');
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSZF-yh74Miq4cXom8m98IrTNiqVS2Ew7jHcA2USe3eD3zmNGQc0auSCpLV38P90Xi/exec';
 
     let allNewsData = [];
 
@@ -24,12 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. ฟังก์ชันดึงข้อมูลจาก Google Apps Script
     async function fetchNewsData() {
-        // ถ้าไม่มีข้อมูลใน Cache เลย ให้โชว์ Loading
         if (allNewsData.length === 0) showLoading(true);
 
         try {
-            const response = await fetch(`${SCRIPT_URL}?action=getNews`);
-            const result = await response.json();
+            const result = await API.request('getNews');
 
             if (result.success && Array.isArray(result.data)) {
                 allNewsData = result.data;
@@ -108,21 +105,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const card = document.createElement('div');
             card.className = 'news-card';
+            
             card.innerHTML = `
-                <img src="${imgUrl || 'https://via.placeholder.com/800x400?text=ChomChon+News'}" alt="${news.Title}" class="news-image" onerror="this.src='https://via.placeholder.com/800x400?text=News+Image'">
+                <img src="${imgUrl || 'https://via.placeholder.com/800x400?text=ChomChon+News'}" alt="News Image" class="news-image" onerror="this.src='https://via.placeholder.com/800x400?text=News+Image'">
                 <div class="news-content">
                     <div class="news-meta">
-                        <span class="news-tag tag-${news.Category || 'general'}">${news.CategoryName || 'ข่าวสาร'}</span>
-                        <span class="news-date"><i class="far fa-calendar-alt"></i> ${formattedDate}</span>
+                        <span class="news-tag tag-${news.Category || 'general'} safe-cat"></span>
+                        <span class="news-date"><span class="safe-date"></span></span>
                     </div>
-                    <h3 class="news-title">${news.Title || 'ไม่มีหัวข้อ'}</h3>
-                    <p class="news-desc">${news.Description || 'ไม่มีรายละเอียด'}</p>
+                    <h3 class="news-title safe-title"></h3>
+                    <p class="news-desc safe-desc"></p>
                     <div class="news-footer">
-                        <span class="news-source"><i class="fas fa-landmark"></i> ${news.Source || 'แหล่งข่าว'}</span>
-                        <a href="${news.Link || '#'}" class="btn-read-more" target="_blank">อ่านต่อ <i class="fas fa-arrow-right"></i></a>
+                        <span class="news-source"><span class="safe-source"></span></span>
+                        <a href="#" class="btn-read-more url-safe" target="_blank">อ่านต่อ</a>
                     </div>
                 </div>
             `;
+            
+            // XSS Safe Assignments
+            card.querySelector('.news-image').alt = news.Title || 'News Image';
+            card.querySelector('.safe-cat').textContent = news.CategoryName || 'ข่าวสาร';
+            card.querySelector('.safe-date').textContent = formattedDate;
+            card.querySelector('.safe-title').textContent = news.Title || 'ไม่มีหัวข้อ';
+            card.querySelector('.safe-desc').textContent = news.Description || 'ไม่มีรายละเอียด';
+            card.querySelector('.safe-source').textContent = news.Source || 'แหล่งข่าว';
+            card.querySelector('.url-safe').href = news.Link || '#';
+            
             newsGrid.appendChild(card);
         });
     }
@@ -156,12 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (refreshBtn) {
         refreshBtn.addEventListener('click', () => {
-            const icon = refreshBtn.querySelector('i');
-            if (icon) icon.classList.add('fa-spin');
-
-            fetchNewsData().finally(() => {
-                if (icon) setTimeout(() => icon.classList.remove('fa-spin'), 600);
-            });
+            fetchNewsData();
         });
     }
 

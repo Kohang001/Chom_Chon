@@ -4,11 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lost & Found</title>
-    <link rel="icon" type="image/png" href="data/logo/logo.png">
+    <title>ChomChon - ของหายและของเจอ</title>
+    
+    <!-- SEO & Social Sharing -->
+    <meta name="description" content="ChomChon ของหาย-ของเจอ - แพลตฟอร์มแจ้งประกาศของหายและตามหาเจ้าของในชุมชน">
+    <meta property="og:title" content="ChomChon - ของหายและของเจอ">
+    <meta property="og:description" content="เชื่อมต่อชุมชน แจ้งเหตุ และติดตามของหายในพื้นที่ของคุณ">
+    <meta property="og:image" content="/assets/logo.png">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/CSS/lostfound.css">
+    <link rel="stylesheet" href="/CSS/toast.css">
     <link rel="stylesheet" href="/CSS/headfooter.css">
 </head>
 
@@ -16,13 +26,16 @@
     <!-- Header -->
     <header class="navbar">
         <div class="container nav-inner">
-            <div class="logo">ChomChon - LOST & FOUND</div>
+            <div class="logo">ChomChon</div>
             <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
                 <span></span>
                 <span></span>
                 <span></span>
             </button>
             <nav id="navMenu" class="nav-menu">
+                <a href="news.html">ข่าวสาร</a>
+                <a href="map.html">แผนที่</a>
+                <a href="lostfound.html" class="active">ของหาย-ของเจอ</a>
                 <div id="userProfile" style="display: flex; align-items: center; gap: 15px;">
                     <!-- Profile JS Inject -->
                 </div>
@@ -36,13 +49,11 @@
             <div class="header-text">
                 <span class="section-badge">Community Service</span>
                 <h1 class="page-title">
-                    <i class="fas fa-search-location"></i>
                     Lost & Found
                 </h1>
                 <p class="page-subtitle">ประกาศสิ่งของสูญหายและตามหาเจ้าของในชุมชน</p>
             </div>
             <button class="btn-add" onclick="document.getElementById('addItemModal').classList.add('show');">
-                <i class="fas fa-plus"></i>
                 แจ้งรายการ
             </button>
         </section>
@@ -51,17 +62,14 @@
         <section class="filters">
 
             <button class="filter-btn active" data-filter="all">
-                <i class="fas fa-list"></i>
                 ทั้งหมด
             </button>
 
             <button class="filter-btn lost" data-filter="lost">
-                <i class="fas fa-search"></i>
                 Lost
             </button>
 
             <button class="filter-btn found" data-filter="found">
-                <i class="fas fa-hand-paper"></i>
                 Found
             </button>
 
@@ -79,9 +87,9 @@
     <div id="addItemModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-plus-circle"></i> แจ้งรายการใหม่</h3>
+                <h3>แจ้งรายการใหม่</h3>
                 <button class="close-modal" onclick="document.getElementById('addItemModal').classList.remove('show');">
-                    <i class="fas fa-times"></i>
+                    ปิด
                 </button>
             </div>
             <div class="modal-body">
@@ -127,7 +135,6 @@
                         <div class="image-upload-wrapper">
                             <input type="file" id="itemImage" name="itemImage" accept="image/*" class="file-input">
                             <div id="imagePreview" class="preview-container">
-                                <i class="fas fa-camera"></i>
                                 <span>คลิกเพื่อแนบรูปภาพ</span>
                             </div>
                         </div>
@@ -137,7 +144,7 @@
             <div class="modal-footer">
                 <button class="cancel-btn" onclick="document.getElementById('addItemModal').classList.remove('show');">ยกเลิก</button>
                 <button type="submit" form="addItemForm" class="btn-add">
-                    <i class="fas fa-paper-plane"></i> ยืนยันประกาศ
+                    ยืนยันประกาศ
                 </button>
             </div>
         </div>
@@ -146,14 +153,13 @@
     <!-- Delete Confirm Popup -->
     <div id="deletePopup" class="popup-overlay">
         <div class="popup-box">
-            <i class="fas fa-exclamation-triangle popup-icon"></i>
             <h3>ยืนยันการลบ</h3>
             <p>คุณแน่ใจหรือไม่ว่าต้องการลบประกาศนี้?</p>
 
             <div class="popup-actions">
                 <button class="btn-cancel" onclick="closeDeletePopup()">ยกเลิก</button>
                 <button class="btn-confirm" id="confirmDeleteBtn">
-                    <i class="fas fa-trash"></i> ลบ
+                    ลบ
                 </button>
             </div>
         </div>
@@ -161,12 +167,43 @@
 
     <footer class="footer">
         <div class="footer-menu">
-            <a href="/HTML/news.html">NEWS</a>
-            <a href="/HTML/lostfound.html" class="active">LOST&FOUND</a>
-            <a href="/HTML/map.html">MAP</a>
+            <a href="/HTML/news.html"><span>ข่าวสาร</span></a>
+            <a href="/HTML/lostfound.html" class="active"><span>ของหาย</span></a>
+            <a href="/HTML/map.html"><span>แผนที่</span></a>
         </div>
     </footer>
 
+    <!-- SOS Emergency Button -->
+    <button class="sos-btn" id="sosTriggerBtn" onclick="document.getElementById('sosModal').classList.add('show')" title="ขอความช่วยเหลือด่วน">
+        SOS
+    </button>
+
+    <!-- SOS Confirmation Modal -->
+    <div id="sosModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>ขอความช่วยเหลือด่วน (SOS)</h3>
+                <button class="close-modal" onclick="document.getElementById('sosModal').classList.remove('show');">
+                    ปิด
+                </button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <h4 style="color: #b91c1c; font-size: 1.3rem; margin-bottom: 10px;">คุณกำลังต้องการความช่วยเหลือ?</h4>
+                <p>ระบบจะทำการขอตำแหน่งที่ตั้งปัจจุบันของคุณ (GPS) และส่งข้อมูลไปยังศูนย์ช่วยเหลือของชุมชนพร้อมชื่อและเบอร์โทรศัพท์ของคุณ</p>
+                <p style="margin-top: 15px; font-weight: 600; color: #ef4444;">กรุณากดเฉพาะเมื่อเกิดเหตุฉุกเฉินเท่านั้น!</p>
+            </div>
+            <div class="modal-footer" style="justify-content: center;">
+                <button class="cancel-btn" onclick="document.getElementById('sosModal').classList.remove('show');">ยกเลิก</button>
+                <button class="sos-confirm-btn" id="confirmSosBtn" onclick="requestEmergencyHelp()">
+                    ส่งสัญญาณขอความช่วยเหลือ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/JS/config.js"></script>
+    <script src="/JS/api.js"></script>
+    <script src="/JS/toast.js"></script>
     <script src="/JS/menu.js"></script>
     <script src="/JS/nav.js"></script>
     <script src="/JS/lostfound.js"></script>

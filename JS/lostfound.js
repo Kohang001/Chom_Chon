@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('addItemForm');
     const filters = document.querySelectorAll('.filter-btn');
     const itemsDisplay = document.getElementById('itemsDisplay');
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSZF-yh74Miq4cXom8m98IrTNiqVS2Ew7jHcA2USe3eD3zmNGQc0auSCpLV38P90Xi/exec';
 
     const fileInput = document.getElementById('itemImage');
     const imagePreview = document.getElementById('imagePreview');
@@ -24,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 reader.readAsDataURL(file);
             } else {
                 selectedImageBase64 = "";
-                imagePreview.innerHTML = `<i class="fas fa-camera"></i><span>Click to upload or drag photo</span>`;
+                imagePreview.innerHTML = `<span>คลิกเพื่อแนบรูปภาพ</span>`;
                 imagePreview.classList.remove('has-image');
             }
         });
@@ -37,22 +36,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 1. ฟังก์ชันโหลดข้อมูลจาก Apps Script และเก็บลง LocalStorage
+    // 1. ฟังก์ชันดึงจาก Cache (LocalStorage) เพื่อให้แสดงผลทันที
+    const loadCache = () => {
+        const userDataStr = localStorage.getItem('userSession');
+        if (userDataStr) {
+            const userData = JSON.parse(userDataStr);
+            if (userData.items && Array.isArray(userData.items)) {
+                renderItems(userData.items);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    // 2. ฟังก์ชันโหลดข้อมูลจาก Apps Script และเก็บลง LocalStorage
     async function loadItems() {
         if (!itemsDisplay) return;
 
         try {
-            itemsDisplay.innerHTML = '<p class="empty-text"><i class="fas fa-spinner fa-spin"></i> Loading items...</p>';
+            itemsDisplay.innerHTML = '<p class="empty-text">กำลังโหลดข้อมูล...</p>';
 
-            const response = await fetch(`${SCRIPT_URL}?action=getLostFound`);
-            const result = await response.json();
+            const result = await API.request('getLostFound');
 
             if (result.success) {
-                // เก็บข้อมูลลงใน userSession ใน LocalStorage
                 const userDataStr = localStorage.getItem('userSession');
                 if (userDataStr) {
                     const userData = JSON.parse(userDataStr);
-                    userData.items = result.data; // เพิ่มฟิลด์ items
+                    userData.items = result.data;
                     localStorage.setItem('userSession', JSON.stringify(userData));
                 }
 
@@ -109,26 +119,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            return `
-                <div class="item-card ${item.Type}">
-                    ${imgHtml}
-                    <div class="item-badge ${item.Type}">${item.Type.toUpperCase()}</div>
-                    
-                    ${isOwner ? `<button class="btn-delete" onclick="deleteItem('${item.Timestamp}', '${item.PosterName}')" title="ลบประกาศ"><i class="fas fa-trash-alt"></i></button>` : ''}
-
-                    <div class="item-info">
-                        <h4 class="item-name">${item.ItemName}</h4>
-                        <p class="item-meta"><i class="far fa-calendar-alt"></i> ${item.Date}</p>
-                        <p class="item-meta"><i class="fas fa-map-marker-alt"></i> ${item.Location}</p>
-                        <p class="item-desc">${item.Details}</p>
-                        
-                        <div class="poster-info">
-                            <p class="poster-name"><i class="fas fa-user-circle"></i> ${item.PosterName || 'ไม่ระบุชื่อ'}</p>
-                            <p class="poster-phone"><i class="fas fa-phone-alt"></i> ${item.PosterPhone ? (item.PosterPhone.toString().startsWith('0') ? item.PosterPhone : '0' + item.PosterPhone) : 'ไม่ระบุเบอร์'}</p>
-                        </div>
+            const outerDiv = document.createElement('div');
+            outerDiv.className = `item-card ${item.Type}`;
+            
+            // Generate Inner Structure Safe from XSS
+            outerDiv.innerHTML = `
+                ${imgHtml}
+                <div class="item-badge ${item.Type}">${item.Type.toUpperCase()}</div>
+                ${isOwner ? `<button class="btn-delete" onclick="deleteItem('${item.Timestamp}', '${item.PosterName}')" title="ลบประกาศ">ลบ</button>` : ''}
+                <div class="item-info">
+                    <h4 class="item-name safe-name"></h4>
+                    <p class="item-meta"><span class="safe-date"></span></p>
+                    <p class="item-meta"><span class="safe-loc"></span></p>
+                    <p class="item-desc safe-desc"></p>
+                    <div class="poster-info">
+                        <p class="poster-name"><span class="safe-poster"></span></p>
+                        <p class="poster-phone"><span class="safe-phone"></span></p>
                     </div>
                 </div>
             `;
+            
+            // XSS Safe Text Value Assignments
+            outerDiv.querySelector('.safe-name').textContent = item.ItemName;
+            outerDiv.querySelector('.safe-date').textContent = item.Date;
+            outerDiv.querySelector('.safe-loc').textContent = item.Location;
+            outerDiv.querySelector('.safe-desc').textContent = item.Details;
+            outerDiv.querySelector('.safe-poster').textContent = item.PosterName || 'ไม่ระบุชื่อ';
+            outerDiv.querySelector('.safe-phone').textContent = item.PosterPhone ? (item.PosterPhone.toString().startsWith('0') ? item.PosterPhone : '0' + item.PosterPhone) : 'ไม่ระบุเบอร์';
+            
+            return outerDiv.outerHTML;
         }).join('');
     }
 
@@ -152,39 +171,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const { timestamp, posterName } = deleteTarget;
 
+        // ดึง Token จาก LocalStorage
+        const userDataStr = localStorage.getItem('userSession');
+        let token = "";
+        if (userDataStr) {
+            token = JSON.parse(userDataStr).token;
+        }
+
         closeDeletePopup();
 
         try {
-
-            const data = new URLSearchParams();
-
-            data.append('action', 'deleteLostFound');
-            data.append('timestamp', timestamp);
-            data.append('posterName', posterName);
-
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: data
+            const result = await API.request('deleteLostFound', {
+                timestamp: timestamp,
+                posterName: posterName
             });
 
-            const result = await response.json();
-
             if (result.success) {
-
                 loadItems();
-
+                showToast("ลบประกาศเรียบร้อยแล้ว", "success");
             } else {
-
-                alert("เกิดข้อผิดพลาด: " + result.message);
-
+                showToast("ไม่สามารถลบได้: " + result.message, "error");
             }
-
         } catch (err) {
-
-            alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
-
+            showToast("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", "error");
         }
-
     });
 
     // Filter Logic
@@ -203,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initial Load
+    loadCache();
     loadItems();
 
     // Form Submission
@@ -210,12 +221,12 @@ document.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const submitBtn = form.querySelector('.btn-submit');
+            const submitBtn = document.querySelector('#addItemModal .btn-add[type="submit"]');
             const originalBtnContent = submitBtn.innerHTML;
 
             // Show loading state
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            submitBtn.innerHTML = 'กำลังส่งข้อมูล...';
 
             // ดึงข้อมูลจากฟอร์ม
             const formData = new FormData(form);
@@ -248,34 +259,36 @@ document.addEventListener('DOMContentLoaded', () => {
             data.append('timestamp', timestamp);
 
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: data // ส่งข้อมูลเป็นรูปแบบ Form Data
+                const result = await API.request('addLostFound', {
+                    type: formData.get('itemType'),
+                    name: formData.get('itemName'),
+                    date: formData.get('itemDate'),
+                    location: formData.get('itemLocation'),
+                    details: formData.get('itemDetails'),
+                    posterName: posterName,
+                    posterPhone: posterPhone,
+                    imageFile: selectedImageBase64,
+                    timestamp: new Date().toLocaleString('th-TH')
                 });
 
-                const result = await response.json();
-
                 if (result.success) {
-                    alert('เพิ่มข้อมูลลงระบบเรียบร้อยแล้ว!');
+                    showToast("เพิ่มข้อมูลลงระบบเรียบร้อยแล้ว", "success");
                     modal.classList.remove('show');
                     form.reset();
 
-                    // Reset Image Preview
                     if (imagePreview) {
                         selectedImageBase64 = "";
-                        imagePreview.innerHTML = `<i class="fas fa-camera"></i><span>Click to upload or drag photo</span>`;
+                        imagePreview.innerHTML = `<span>คลิกเพื่อแนบรูปภาพ</span>`;
                         imagePreview.classList.remove('has-image');
                     }
 
-                    // โหลดข้อมูลใหม่หลังจากเพิ่มสำเร็จ
                     loadItems();
                 } else {
-                    alert('เกิดข้อผิดพลาด: ' + result.message);
+                    showToast("ไม่สามารถเพิ่มข้อมูลได้: " + result.message, "error");
                 }
-
             } catch (error) {
                 console.error('Error!', error.message);
-                alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง');
+                showToast("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง", "error");
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnContent;

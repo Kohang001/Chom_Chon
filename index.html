@@ -4,7 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authentication</title>
+    <title>ChomChon - Smart Community Connect</title>
+    
+    <!-- SEO & Social Sharing -->
+    <meta name="description" content="ChomChon Smart Community Connect - แพลตฟอร์มเพื่อสังคมที่น่าอยู่ขึ้น">
+    <meta property="og:title" content="ChomChon - Smart Community Connect">
+    <meta property="og:description" content="เชื่อมต่อชุมชน แจ้งเหตุ และติดตามของหายในพื้นที่ของคุณ">
+    <meta property="og:image" content="/assets/logo.png">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/logo.png">
+    
+    <link rel="stylesheet" href="/CSS/toast.css">
     <link rel="stylesheet" href="main.css">
 </head>
 
@@ -18,7 +31,7 @@
                 <input type="text" id="logUser" placeholder="Username">
             </label>
             <label>
-                <input type="password" id="logPass" placeholder="รหัสผ่าน">
+                <input type="password" id="logPass" placeholder="รหัสผ่าน" required>
             </label>
             <button onclick="login()">Login</button>
             <p onclick="toggleForm('signupForm')">สมัครสมาชิก</p>
@@ -29,28 +42,28 @@
             <h2 class="title">สมัครสมาชิก</h2>
             <div class="flex">
                 <label>
-                    <input type="text" id="regFirst" placeholder="ชื่อจริง">
+                    <input type="text" id="regFirst" placeholder="ชื่อจริง" required maxlength="50">
                 </label>
                 <label>
-                    <input type="text" id="regLast" placeholder="นามสกุล">
+                    <input type="text" id="regLast" placeholder="นามสกุล" required maxlength="50">
                 </label>
             </div>
             <label>
-                <input type="text" id="regUser" placeholder="Username">
+                <input type="text" id="regUser" placeholder="Username" required maxlength="20">
             </label>
             <label>
-                <input type="text" id="regPhone" placeholder="เบอร์โทรศัพท์ 10 หลัก" maxlength="10">
+                <input type="text" id="regPhone" placeholder="เบอร์โทรศัพท์ 10 หลัก" maxlength="10" required>
             </label>
             <label>
-                <input type="password" id="regPass" placeholder="รหัสผ่าน">
+                <input type="password" id="regPass" placeholder="รหัสผ่าน (อย่างน้อย 5 ตัวอักษร)" required maxlength="20">
             </label>
             <label>
-                <input type="password" id="regPassCon" placeholder="ยืนยันรหัสผ่าน">
+                <input type="password" id="regPassCon" placeholder="ยืนยันรหัสผ่าน" required maxlength="20">
             </label>
             <div class="image-upload">
                 <div class="image-preview">
                     <img id="previewImg" src="" alt="preview">
-                    <span id="imgPlaceholder">เลือกรูปโปรไฟล์</span>
+                    <span id="imgPlaceholder">ภาพโปรไฟล์</span>
                 </div>
 
                 <input type="file" id="regImg" accept="image/*">
@@ -64,20 +77,23 @@
 
             <div id="fgStep1">
                 <label>
-                    <input type="text" id="fgFirst" placeholder="ชื่อจริง">
+                    <input type="text" id="fgFirst" placeholder="ชื่อจริง" required maxlength="50">
                 </label>
                 <label>
-                    <input type="text" id="fgLast" placeholder="นามสกุล">
+                    <input type="text" id="fgLast" placeholder="นามสกุล" required>
+                </label>
+                <label>
+                    <input type="text" id="fgPhone" placeholder="เบอร์โทรศัพท์ 10 หลัก" maxlength="10" required>
                 </label>
                 <button onclick="checkUserExists()" id="btnCheckUser">ตรวจสอบข้อมูล</button>
             </div>
 
             <div id="fgStep2" style="display: none;">
                 <label>
-                    <input type="password" id="fgNewPass" placeholder="รหัสผ่านใหม่">
+                    <input type="password" id="fgNewPass" placeholder="รหัสผ่านใหม่" required maxlength="20">
                 </label>
                 <label>
-                    <input type="password" id="fgNewPassCon" placeholder="ยืนยันรหัสผ่านใหม่">
+                    <input type="password" id="fgNewPassCon" placeholder="ยืนยันรหัสผ่านใหม่" required maxlength="20">
                 </label>
                 <button onclick="resetPassword()" id="btnResetPass">บันทึกรหัสผ่านใหม่</button>
             </div>
@@ -86,7 +102,10 @@
         </div>
     </div>
 
-
+    <!-- Script ของหน้า Login -->
+    <script src="/JS/config.js"></script>
+    <script src="/JS/api.js"></script>
+    <script src="/JS/toast.js"></script>
     <script src="main.js"></script>
 </body>
 

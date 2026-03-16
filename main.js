@@ -1,5 +1,3 @@
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSZF-yh74Miq4cXom8m98IrTNiqVS2Ew7jHcA2USe3eD3zmNGQc0auSCpLV38P90Xi/exec';
-
 function toggleForm(formId) {
     document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
     document.getElementById(formId).classList.add('active');
@@ -10,6 +8,7 @@ function toggleForm(formId) {
         document.getElementById('fgStep2').style.display = 'none';
         document.getElementById('fgFirst').value = '';
         document.getElementById('fgLast').value = '';
+        document.getElementById('fgPhone').value = '';
         document.getElementById('fgNewPass').value = '';
         document.getElementById('fgNewPassCon').value = '';
     }
@@ -18,8 +17,8 @@ function toggleForm(formId) {
 async function login() {
     const user = document.getElementById('logUser').value.trim();
     const pass = document.getElementById('logPass').value;
-    if (!user || !pass) return alert("กรุณากรอกชื่อผู้ใช้และรหัสผ่าน");
-    if (user.length < 3) return alert("ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร");
+    if (!user || !pass) return showToast("กรุณากรอกชื่อผู้ใช้และรหัสผ่าน", "warning");
+    if (user.length < 3) return showToast("ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร", "warning");
 
     const btn = document.querySelector('#loginForm button');
     const oriText = btn.innerText;
@@ -27,31 +26,27 @@ async function login() {
     btn.disabled = true;
 
     try {
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: new URLSearchParams({ action: 'login', username: user, password: pass })
-        });
-        const result = await response.json();
+        const result = await API.request('login', { username: user, password: pass });
 
         if (result.success) {
-            alert("เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับคุณ " + result.user.firstName);
+            showToast("เข้าสู่ระบบสำเร็จ ยินดีต้อนรับคุณ " + result.user.firstName, "success");
 
-            // สร้างเป็น JSON Object และบันทึกลง LocalStorage (เปรียบเสมือนไฟล์เซฟในเบราว์เซอร์)
             const userData = {
                 firstName: result.user.firstName,
                 lastName: result.user.lastName,
                 username: result.user.username,
                 phone: result.user.phone,
-                image: result.user.image
+                image: result.user.image,
+                token: result.token
             };
             localStorage.setItem('userSession', JSON.stringify(userData));
 
-            window.location.href = '/HTML/news.html'; // เปลี่ยนไปหน้า news.html ตามที่คุณต้องการ
+            setTimeout(() => { window.location.href = '/HTML/news.html'; }, 1500);
         } else {
-            alert(result.message);
+            showToast(result.message, "error");
         }
     } catch (error) {
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + error.message);
+        showToast("ไม่สามารถเข้าสู่ระบบได้: " + error.message, "error");
     } finally {
         btn.innerText = oriText;
         btn.disabled = false;
@@ -67,13 +62,13 @@ async function register() {
     const passCon = document.getElementById('regPassCon').value;
     const imgInput = document.getElementById('regImg');
 
-    if (!firstName || !lastName || !username || !phone || !pass) return alert("กรุณากรอกข้อมูลให้ครบ");
-    if (phone.length !== 10 || isNaN(phone)) return alert("เบอร์ต้องเป็นตัวเลข 10 หลัก");
-    if (pass.length < 5) return alert("รหัสผ่านต้องมีอย่างน้อย 5 ตัวอักษร");
-    if (pass !== passCon) return alert("รหัสผ่านไม่ตรงกัน");
+    if (!firstName || !lastName || !username || !phone || !pass) return showToast("กรุณากรอกข้อมูลให้ครบ", "warning");
+    if (phone.length !== 10 || isNaN(phone)) return showToast("เบอร์ต้องเป็นตัวเลข 10 หลัก", "warning");
+    if (pass.length < 5) return showToast("รหัสผ่านต้องมีอย่างน้อย 5 ตัวอักษร", "warning");
+    if (pass !== passCon) return showToast("รหัสผ่านไม่ตรงกัน", "warning");
 
-    if (SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
-        return alert("กรุณาใส่ SCRIPT_URL ในไฟล์ main.js ก่อนใช้งาน");
+    if (!CONFIG.SCRIPT_URL || CONFIG.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+        return showToast("กรุณาตรวจสอบการตั้งค่า CONFIG.SCRIPT_URL", "error");
     }
 
     const btn = document.querySelector('#signupForm button');
@@ -85,13 +80,11 @@ async function register() {
         let base64Image = "";
         if (imgInput.files && imgInput.files[0]) {
             const file = imgInput.files[0];
-            // ตรวจสอบขนาดไฟล์ไม่เกิน 5MB (ตัวเลือก)
             if (file.size > 5 * 1024 * 1024) {
-                alert("ไฟล์ภาพใหญ่เกินไป กรุณาใช้ไฟล์ขนาดไม่เกิน 5MB");
+                showToast("ไฟล์ภาพใหญ่เกินไป กรุณาใช้ไฟล์ขนาดไม่เกิน 5MB", "warning");
                 throw new Error("ขนาดไฟล์ใหญ่เกินไป");
             }
 
-            // อ่านไฟล์เป็น Base64
             base64Image = await new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = () => resolve(reader.result);
@@ -100,29 +93,24 @@ async function register() {
             });
         }
 
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: new URLSearchParams({
-                action: 'register',
-                firstName: firstName,
-                lastName: lastName,
-                username: username,
-                phone: phone,
-                password: pass,
-                imageFile: base64Image
-            })
+        const result = await API.request('register', {
+            firstName: firstName,
+            lastName: lastName,
+            username: username,
+            phone: phone,
+            password: pass,
+            imageFile: base64Image
         });
-        const result = await response.json();
 
         if (result.success) {
-            alert("สมัครสมาชิกสำเร็จ!");
+            showToast("สมัครสมาชิกสำเร็จ", "success");
             toggleForm('loginForm');
         } else {
-            alert(result.message);
+            showToast(result.message, "error");
         }
     } catch (error) {
         if (error.message !== "ขนาดไฟล์ใหญ่เกินไป") {
-            alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + error.message);
+            showToast("ไม่สามารถสมัครสมาชิกได้: " + error.message, "error");
         }
     } finally {
         btn.innerText = oriText;
@@ -134,12 +122,9 @@ async function register() {
 async function checkUserExists() {
     const firstName = document.getElementById('fgFirst').value.trim();
     const lastName = document.getElementById('fgLast').value.trim();
+    const phone = document.getElementById('fgPhone').value.trim();
 
-    if (!firstName || !lastName) return alert("กรุณากรอกชื่อจริงและนามสกุล");
-
-    if (SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
-        return alert("กรุณาใส่ SCRIPT_URL ในไฟล์ main.js ก่อนใช้งาน");
-    }
+    if (!firstName || !lastName || !phone) return showToast("กรุณากรอกข้อมูลให้ครบถ้วน", "warning");
 
     const btn = document.getElementById('btnCheckUser');
     const oriText = btn.innerText;
@@ -147,25 +132,20 @@ async function checkUserExists() {
     btn.disabled = true;
 
     try {
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: new URLSearchParams({
-                action: 'checkUser',
-                firstName: firstName,
-                lastName: lastName
-            })
+        const result = await API.request('checkUser', {
+            firstName: firstName,
+            lastName: lastName,
+            phone: phone
         });
-        const result = await response.json();
 
         if (result.success) {
-            // ซ่อน step 1, แสดง step 2
             document.getElementById('fgStep1').style.display = 'none';
             document.getElementById('fgStep2').style.display = 'block';
         } else {
-            alert(result.message);
+            showToast(result.message, "error");
         }
     } catch (error) {
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + error.message);
+        showToast("เกิดข้อผิดพลาด: " + error.message, "error");
     } finally {
         btn.innerText = oriText;
         btn.disabled = false;
@@ -176,12 +156,13 @@ async function checkUserExists() {
 async function resetPassword() {
     const firstName = document.getElementById('fgFirst').value.trim();
     const lastName = document.getElementById('fgLast').value.trim();
+    const phone = document.getElementById('fgPhone').value.trim();
     const newPassword = document.getElementById('fgNewPass').value;
     const newPasswordCon = document.getElementById('fgNewPassCon').value;
 
-    if (!newPassword || !newPasswordCon) return alert("กรุณากรอกรหัสผ่านใหม่ให้ครบถ้วน");
-    if (newPassword.length < 5) return alert("รหัสผ่านใหม่ต้องมีอย่างน้อย 5 ตัวอักษร");
-    if (newPassword !== newPasswordCon) return alert("รหัสผ่านใหม่ไม่ตรงกัน");
+    if (!newPassword || !newPasswordCon) return showToast("กรุณากรอกรหัสผ่านใหม่ให้ครบถ้วน", "warning");
+    if (newPassword.length < 5) return showToast("รหัสผ่านใหม่ต้องมีอย่างน้อย 5 ตัวอักษร", "warning");
+    if (newPassword !== newPasswordCon) return showToast("รหัสผ่านใหม่ไม่ตรงกัน", "warning");
 
     const btn = document.getElementById('btnResetPass');
     const oriText = btn.innerText;
@@ -189,25 +170,21 @@ async function resetPassword() {
     btn.disabled = true;
 
     try {
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: new URLSearchParams({
-                action: 'resetPassword',
-                firstName: firstName,
-                lastName: lastName,
-                newPassword: newPassword
-            })
+        const result = await API.request('resetPassword', {
+            firstName: firstName,
+            lastName: lastName,
+            phone: phone,
+            newPassword: newPassword
         });
-        const result = await response.json();
 
         if (result.success) {
-            alert("เปลี่ยนรหัสผ่านสำเร็จ!");
+            showToast("เปลี่ยนรหัสผ่านสำเร็จ", "success");
             toggleForm('loginForm');
         } else {
-            alert(result.message);
+            showToast(result.message, "error");
         }
     } catch (error) {
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + error.message);
+        showToast("เกิดข้อผิดพลาด: " + error.message, "error");
     } finally {
         btn.innerText = oriText;
         btn.disabled = false;

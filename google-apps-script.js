@@ -14,14 +14,18 @@ function setup() {
   let sheetUsers = ss.getSheetByName('Users');
   if (!sheetUsers) {
     sheetUsers = ss.insertSheet('Users');
-    sheetUsers.appendRow(['FirstName', 'LastName', 'Username', 'Phone', 'Password', 'Image', 'LastUpdate']);
+    sheetUsers.appendRow(['FirstName', 'LastName', 'Username', 'Phone', 'Password', 'Image', 'LastUpdate', 'Token']);
   } else if (sheetUsers.getLastRow() > 0) {
     let headers = sheetUsers.getRange(1, 1, 1, sheetUsers.getLastColumn()).getValues()[0];
     if (headers.indexOf('LastUpdate') === -1) {
       sheetUsers.getRange(1, sheetUsers.getLastColumn() + 1).setValue('LastUpdate');
+      headers.push('LastUpdate');
+    }
+    if (headers.indexOf('Token') === -1) {
+      sheetUsers.getRange(1, sheetUsers.getLastColumn() + 1).setValue('Token');
     }
   } else if (sheetUsers.getLastRow() === 0) {
-    sheetUsers.appendRow(['FirstName', 'LastName', 'Username', 'Phone', 'Password', 'Image', 'LastUpdate']);
+    sheetUsers.appendRow(['FirstName', 'LastName', 'Username', 'Phone', 'Password', 'Image', 'LastUpdate', 'Token']);
   }
 
   // Setup สำหรับ Lost & Found
@@ -59,6 +63,15 @@ function setup() {
   } else if (sheetMap.getLastRow() === 0) {
     sheetMap.appendRow(['Timestamp', 'Title', 'Description', 'X', 'Y', 'PosterName']);
   }
+
+  // Setup สำหรับ Emergency Help
+  let sheetSOS = ss.getSheetByName('EmergencyHelp');
+  if (!sheetSOS) {
+    sheetSOS = ss.insertSheet('EmergencyHelp');
+    sheetSOS.appendRow(['Timestamp', 'ProfileName', 'Phone', 'Latitude', 'Longitude', 'LocationLink']);
+  } else if (sheetSOS.getLastRow() === 0) {
+    sheetSOS.appendRow(['Timestamp', 'ProfileName', 'Phone', 'Latitude', 'Longitude', 'LocationLink']);
+  }
 }
 
 function doGet(e) {
@@ -93,12 +106,53 @@ function doPost(e) {
       return getMapPins(e);
     } else if (action === 'deleteMapPin') {
       return deleteMapPin(e);
+    } else if (action === 'addEmergency') {
+      return addEmergency(e);
     }
   } catch (err) {
     return createResponse({ success: false, message: err.message });
   }
 
   return createResponse({ success: false, message: "Invalid action" });
+}
+
+function addEmergency(e) {
+  try {
+    const userToken = e.parameter.token;
+    if (!verifyToken(userToken)) return createResponse({ success: false, message: "Unauthorized" });
+
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('EmergencyHelp');
+
+    const timestamp = e.parameter.timestamp || new Date().toISOString();
+    const profileName = e.parameter.profileName || 'Unknown';
+    const phone = e.parameter.phone || 'ไม่ระบุเบอร์';
+    const lat = e.parameter.lat;
+    const lng = e.parameter.lng;
+
+    if (!lat || !lng) {
+      return createResponse({ success: false, message: "Missing location data" });
+    }
+
+    const locationLink = `https://www.google.com/maps?q=${lat},${lng}`;
+
+    sheet.appendRow([timestamp, profileName, phone, lat, lng, locationLink]);
+
+    return createResponse({ success: true, message: "Emergency alert recorded" });
+
+  } catch (err) {
+    return createResponse({ success: false, message: err.toString() });
+  }
+}
+
+function verifyToken(token) {
+  if (!token) return false;
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Users');
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][7]) === String(token)) return true;
+  }
+  return false;
 }
 
 function createResponse(data) {
@@ -111,6 +165,9 @@ function addLostFound(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     let sheet = ss.getSheetByName('LostFound');
+
+    const userToken = e.parameter.token;
+    if (!verifyToken(userToken)) return createResponse({ success: false, message: "Unauthorized" });
 
     if (!sheet) {
       sheet = ss.insertSheet('LostFound');
@@ -195,15 +252,34 @@ function getLostFound(e) {
 function deleteLostFound(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    // ตรวจสอบ Token
+    const userToken = e.parameter.token;
+    if (!userToken) return createResponse({ success: false, message: "Unauthorized (ไม่พบ Token)" });
+    const sheetUsers = ss.getSheetByName('Users');
+    const userValues = sheetUsers.getDataRange().getValues();
+    let isAuthorized = false;
+    let actualUsername = "";
+    for (let j = 1; j < userValues.length; j++) {
+      if (String(userValues[j][7]) === String(userToken)) {
+        isAuthorized = true;
+        actualUsername = String(userValues[j][2]); // Username อยู่คอลัมน์ 3 (index 2)
+        break;
+      }
+    }
+    if (!isAuthorized) return createResponse({ success: false, message: "Unauthorized (Token ไม่ถูกต้อง)" });
+
     const sheet = ss.getSheetByName('LostFound');
     if (!sheet) return createResponse({ success: false, message: "ไม่พบชีตข้อมูล" });
 
     const timestamp = e.parameter.timestamp;
-    const posterName = e.parameter.posterName;
+
+    // บังคับใช้ username จาก Token แทนจาก parameter ป้องกันการปลอมแปลง
+    const posterName = actualUsername;
 
     const values = sheet.getDataRange().getValues();
     for (let i = 1; i < values.length; i++) {
-      // ตรวจสอบทั้ง Timestamp และ PosterName เพื่อความปลอดภัย
+      // ตรวจสอบทั้ง Timestamp และ PosterName (ที่ได้จาก Token)
       if (String(values[i][0]) === String(timestamp) && String(values[i][7]) === String(posterName)) {
         sheet.deleteRow(i + 1);
         return createResponse({ success: true, message: "ลบประกาศเรียบร้อยแล้ว" });
@@ -251,17 +327,28 @@ function updateUser(e) {
     const oldUsername = e.parameter.oldUsername;
     const subAction = e.parameter.subAction; // 'image', 'username', 'password'
 
-    let userRowIndex = -1;
-    let currentUserData = null;
+    const userToken = e.parameter.token;
+    if (!verifyToken(userToken)) return createResponse({ success: false, message: "Unauthorized" });
+
+    // Identify user from token to ensure they ONLY edit their own profile
+    let tokenUserIndex = -1;
     for (let i = 1; i < data.length; i++) {
-      if (String(data[i][2]).trim() === oldUsername.trim()) {
-        userRowIndex = i + 1;
-        currentUserData = data[i];
+      if (String(data[i][7]) === String(userToken)) {
+        tokenUserIndex = i; // Save the index (0-based for data array)
         break;
       }
     }
 
-    if (userRowIndex === -1) return createResponse({ success: false, message: "ไม่พบผู้ใช้งาน" });
+    if (tokenUserIndex === -1) return createResponse({ success: false, message: "Invalid session" });
+    
+    const userRowIndex = tokenUserIndex + 1;
+    const currentUserData = data[tokenUserIndex];
+    const actualUsername = String(currentUserData[2]);
+
+    // Ensure they aren't trying to spoof another user
+    if (oldUsername && actualUsername !== oldUsername) {
+        return createResponse({ success: false, message: "Unauthorized profile access" });
+    }
 
     const now = getThailandDate(true);
     const today = getThailandDate();
@@ -280,7 +367,7 @@ function updateUser(e) {
     if (subAction === 'image') {
       // --- อัปเดตเฉพาะรูปภาพ ---
       if (!e.parameter.imageFile) return createResponse({ success: false, message: "ไม่พบไฟล์รูปภาพ" });
-      
+
       const folderId = "1_OvDxs49wRdqd99esA_6fggEr43r4mCM";
       const splitBase = e.parameter.imageFile.split(',');
       const type = splitBase[0].split(';')[0].replace('data:', '');
@@ -294,7 +381,7 @@ function updateUser(e) {
 
       const newImageUrl = createdFile.webViewLink;
       sheet.getRange(userRowIndex, 6).setValue(newImageUrl);
-      
+
       return createResponse({ success: true, message: "เปลี่ยนรูปโปรไฟล์สำเร็จ", newImage: newImageUrl });
 
     } else if (subAction === 'username') {
@@ -331,7 +418,8 @@ function updateUser(e) {
       const newPassword = e.parameter.newPassword;
       const storedPassword = String(currentUserData[4]);
 
-      if (storedPassword !== oldPasswordParam) {
+      const hashedOldPassword = hashPassword(oldPasswordParam);
+      if (storedPassword !== hashedOldPassword && storedPassword !== oldPasswordParam) {
         return createResponse({ success: false, message: "รหัสผ่านเดิมไม่ถูกต้อง" });
       }
 
@@ -339,7 +427,8 @@ function updateUser(e) {
         return createResponse({ success: false, message: "รหัสผ่านใหม่ต้องมีความยาวอย่างน้อย 4 ตัวอักษร" });
       }
 
-      sheet.getRange(userRowIndex, 5).setValue(newPassword);
+      const hashedNewPassword = hashPassword(newPassword);
+      sheet.getRange(userRowIndex, 5).setValue(hashedNewPassword);
       sheet.getRange(userRowIndex, 7).setValue(now);
 
       return createResponse({ success: true, message: "เปลี่ยนรหัสผ่านสำเร็จ" });
@@ -356,6 +445,9 @@ function updateUser(e) {
 function addMapPin(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const userToken = e.parameter.token;
+    if (!verifyToken(userToken)) return createResponse({ success: false, message: "Unauthorized" });
+
     let sheet = ss.getSheetByName('MapPins');
     if (!sheet) {
       sheet = ss.insertSheet('MapPins');
@@ -404,11 +496,30 @@ function getMapPins(e) {
 function deleteMapPin(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    // ตรวจสอบ Token
+    const userToken = e.parameter.token;
+    if (!userToken) return createResponse({ success: false, message: "Unauthorized (ไม่พบ Token)" });
+    const sheetUsers = ss.getSheetByName('Users');
+    const userValues = sheetUsers.getDataRange().getValues();
+    let isAuthorized = false;
+    let actualUsername = "";
+    for (let j = 1; j < userValues.length; j++) {
+      if (String(userValues[j][7]) === String(userToken)) {
+        isAuthorized = true;
+        actualUsername = String(userValues[j][2]); // Username อยู่คอลัมน์ 3 (index 2)
+        break;
+      }
+    }
+    if (!isAuthorized) return createResponse({ success: false, message: "Unauthorized (Token ไม่ถูกต้อง)" });
+
     const sheet = ss.getSheetByName('MapPins');
     if (!sheet) return createResponse({ success: false, message: "ไม่พบชีตข้อมูล" });
 
     const timestamp = e.parameter.timestamp;
-    const posterName = e.parameter.posterName;
+
+    // บังคับใช้ username จาก Token แทนจาก parameter ป้องกันการปลอมแปลง
+    const posterName = actualUsername;
 
     const values = sheet.getDataRange().getValues();
     for (let i = 1; i < values.length; i++) {
@@ -443,6 +554,19 @@ function getThailandDate(withTime = false) {
   }
 
   return dateStr;
+}
+
+// ฟังก์ชันสำหรับ Hash Password ด้วย SHA-256
+function hashPassword(password) {
+  const rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, password);
+  let txtHash = '';
+  for (let j = 0; j < rawHash.length; j++) {
+    let hashVal = rawHash[j];
+    if (hashVal < 0) hashVal += 256;
+    if (hashVal.toString(16).length == 1) txtHash += "0";
+    txtHash += hashVal.toString(16);
+  }
+  return txtHash;
 }
 
 // --- ฟังก์ชันเดิม (Users) ---
@@ -486,13 +610,18 @@ function register(e) {
     }
   }
 
+  // เข้ารหัส Password ก่อนบันทึก
+  const hashedPassword = hashPassword(e.parameter.password);
+
   sheet.appendRow([
     e.parameter.firstName,
     e.parameter.lastName,
     e.parameter.username,
     e.parameter.phone,
-    e.parameter.password,
-    imageUrl
+    hashedPassword,
+    imageUrl,
+    "", // LastUpdate
+    ""  // Token
   ]);
 
   return createResponse({ success: true, message: "สมัครสมาชิกสำเร็จ" });
@@ -503,12 +632,27 @@ function login(e) {
   const sheet = ss.getSheetByName('Users');
   const data = sheet.getDataRange().getValues();
 
+  // เข้ารหัสรหัสผ่านที่รับมาก่อนนำไปเปรียบเทียบ
+  const hashedInputPassword = hashPassword(e.parameter.password);
+
   for (let i = 1; i < data.length; i++) {
+    // รองรับกรณีที่บัญชีเก่าอาจจะยังไม่ได้แฮช ให้เทียบทั้งแบบแฮชและแบบตรงๆ
     if (String(data[i][2]).trim() === String(e.parameter.username).trim() &&
-      String(data[i][4]).trim() === String(e.parameter.password).trim()) {
+      (String(data[i][4]).trim() === hashedInputPassword || String(data[i][4]).trim() === String(e.parameter.password).trim())) {
+
+      // อัปเดตรหัสผ่านเป็นแฮช (หากบัญชียังเป็น plaintext อยู่ จะได้แฮชทันทีเมื่อเข้าสู่ระบบ)
+      if (String(data[i][4]).trim() === String(e.parameter.password).trim() && String(data[i][4]).trim() !== hashedInputPassword) {
+        sheet.getRange(i + 1, 5).setValue(hashedInputPassword);
+      }
+
+      // สร้าง Session Token และบันทึกลงในชีตคอลัมน์ Token (คอลัมน์ H / Index 8)
+      const token = Utilities.getUuid();
+      sheet.getRange(i + 1, 8).setValue(token);
+
       return createResponse({
         success: true,
         message: "เข้าสู่ระบบสำเร็จ",
+        token: token,
         user: {
           firstName: data[i][0],
           lastName: data[i][1],
@@ -529,12 +673,12 @@ function checkUser(e) {
   const data = sheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === e.parameter.firstName && data[i][1] === e.parameter.lastName) {
+    if (data[i][0] === e.parameter.firstName && data[i][1] === e.parameter.lastName && String(data[i][3]) === String(e.parameter.phone)) {
       return createResponse({ success: true, message: "พบข้อมูลผู้ใช้" });
     }
   }
 
-  return createResponse({ success: false, message: "ไม่พบข้อมูลชื่อและนามสกุลนี้ในระบบ" });
+  return createResponse({ success: false, message: "ไม่พบข้อมูลผู้ใช้ที่ตรงกัน (กรุณาเช็คชื่อ-นามสกุล และเบอร์โทรศัพท์)" });
 }
 
 function resetPassword(e) {
@@ -543,11 +687,13 @@ function resetPassword(e) {
   const data = sheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === e.parameter.firstName && data[i][1] === e.parameter.lastName) {
-      sheet.getRange(i + 1, 5).setValue(e.parameter.newPassword);
+    if (data[i][0] === e.parameter.firstName && data[i][1] === e.parameter.lastName && String(data[i][3]) === String(e.parameter.phone)) {
+      // เข้ารหัสรหัสผ่านใหม่
+      const hashedNewPassword = hashPassword(e.parameter.newPassword);
+      sheet.getRange(i + 1, 5).setValue(hashedNewPassword);
       return createResponse({ success: true, message: "เปลี่ยนรหัสผ่านสำเร็จ" });
     }
   }
 
-  return createResponse({ success: false, message: "ไม่พบข้อมูลผู้ใช้ (เปลี่ยนรหัสผ่านไม่สำเร็จ)" });
+  return createResponse({ success: false, message: "ไม่พบข้อมูลผู้ใช้ หรือข้อมูลยืนยันตัวตนไม่ถูกต้อง" });
 }

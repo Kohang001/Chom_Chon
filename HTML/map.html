@@ -4,11 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map</title>
-    <link rel="icon" type="image/png" href="data/logo/logo.png">
+    <title>ChomChon - แผนที่ชุมชน</title>
+    
+    <!-- SEO & Social Sharing -->
+    <meta name="description" content="ChomChon แผนที่ชุมชน - แผนที่แจ้งข่าวสารและเหตุการณ์ต่างๆ ในชุมชน">
+    <meta property="og:title" content="ChomChon - แผนที่ชุมชน">
+    <meta property="og:description" content="เชื่อมต่อชุมชน แจ้งเหตุ และติดตามของหายในพื้นที่ของคุณ">
+    <meta property="og:image" content="/assets/logo.png">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/CSS/map.css">
+    <link rel="stylesheet" href="/CSS/toast.css">
     <link rel="stylesheet" href="/CSS/headfooter.css">
 </head>
 
@@ -16,13 +26,16 @@
     <!-- Header -->
     <header class="navbar">
         <div class="container nav-inner">
-            <div class="logo">ChomChon - MAP</div>
+            <div class="logo">ChomChon</div>
             <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
                 <span></span>
                 <span></span>
                 <span></span>
             </button>
             <nav id="navMenu" class="nav-menu">
+                <a href="news.html">ข่าวสาร</a>
+                <a href="map.html" class="active">แผนที่</a>
+                <a href="lostfound.html">ของหาย-ของเจอ</a>
                 <div id="userProfile" style="display: flex; align-items: center; gap: 15px;">
                     <!-- Profile JS Inject -->
                 </div>
@@ -36,13 +49,11 @@
             <div class="header-text">
                 <span class="section-badge">Community Interaction</span>
                 <h1 class="page-title">
-                    <i class="fas fa-map-marked-alt"></i>
                     Community Map
                 </h1>
                 <p class="page-subtitle">แผนที่แจ้งข่าวสารและเหตุการณ์ต่างๆ ในชุมชน</p>
             </div>
             <button class="btn-add" id="addReportBtn">
-                <i class="fas fa-plus"></i>
                 แจ้งเหตุการณ์
             </button>
         </section>
@@ -60,12 +71,12 @@
             <!-- Report List -->
             <div class="report-section">
                 <div class="section-header">
-                    <h2><i class="fas fa-list-ul"></i> รายการแจ้งเหตุล่าสุด</h2>
+                    <h2>รายการแจ้งเหตุล่าสุด</h2>
                 </div>
                 <div id="reportList" class="report-grid">
                     <!-- Cards will be injected here -->
                     <div class="loading-state">
-                        <i class="fas fa-spinner fa-spin"></i> กำลังโหลดข้อมูล...
+                        กำลังโหลดข้อมูล...
                     </div>
                 </div>
             </div>
@@ -76,8 +87,8 @@
     <div id="pinModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-map-marker-alt"></i> แจ้งเหตุการณ์ใหม่</h3>
-                <button class="close-modal" id="closeModal">&times;</button>
+                <h3>แจ้งเหตุการณ์ใหม่</h3>
+                <button class="close-modal" id="closeModal">ปิด</button>
             </div>
             <div class="modal-body">
                 <!-- Location Picker Map inside Modal -->
@@ -94,17 +105,17 @@
                 <div class="input-section">
                     <p class="picker-label">ขั้นตอนที่ 2: ระบุรายละเอียด</p>
                     <div class="input-group">
-                        <label>หัวข้อเหตุการณ์</label>
-                        <input type="text" id="pinTitle" placeholder="เช่น อุบัติเหตุ, พื้นที่ก่อสร้าง">
+                        <label>หัวข้อข้อมูล</label>
+                        <input type="text" id="pinTitle" placeholder="เช่น อุบัติเหตุ, พื้นที่ก่อสร้าง" required maxlength="50">
                     </div>
                     <div class="input-group">
-                        <label>รายละเอียด</label>
-                        <textarea id="pinDescription" placeholder="ระบุรายละเอียดเพิ่มเติม..."></textarea>
+                        <label>รายละเอียดเพิ่มเติม</label>
+                        <textarea id="pinDescription" placeholder="ระบุรายละเอียดเพิ่มเติม..." required maxlength="200"></textarea>
                     </div>
                 </div>
 
                 <div class="location-picker-info" id="locationStatus">
-                    <i class="fas fa-info-circle"></i> <span>ยังไม่ได้เลือกตำแหน่ง</span>
+                    <span>ยังไม่ได้เลือกตำแหน่ง</span>
                 </div>
                 <input type="hidden" id="coordX">
                 <input type="hidden" id="coordY">
@@ -118,12 +129,43 @@
 
     <footer class="footer">
         <div class="footer-menu">
-            <a href="/HTML/news.html">NEWS</a>
-            <a href="/HTML/lostfound.html">LOST&FOUND</a>
-            <a href="/HTML/map.html" class="active">MAP</a>
+            <a href="/HTML/news.html"><span>ข่าวสาร</span></a>
+            <a href="/HTML/lostfound.html"><span>ของหาย</span></a>
+            <a href="/HTML/map.html" class="active"><span>แผนที่</span></a>
         </div>
     </footer>
 
+    <!-- SOS Emergency Button -->
+    <button class="sos-btn" id="sosTriggerBtn" onclick="document.getElementById('sosModal').classList.add('show')" title="ขอความช่วยเหลือด่วน">
+        SOS
+    </button>
+
+    <!-- SOS Confirmation Modal -->
+    <div id="sosModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>ขอความช่วยเหลือด่วน (SOS)</h3>
+                <button class="close-modal" onclick="document.getElementById('sosModal').classList.remove('show');">
+                    ปิด
+                </button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <h4 style="color: #b91c1c; font-size: 1.3rem; margin-bottom: 10px;">คุณกำลังต้องการความช่วยเหลือ?</h4>
+                <p>ระบบจะทำการขอตำแหน่งที่ตั้งปัจจุบันของคุณ (GPS) และส่งข้อมูลไปยังศูนย์ช่วยเหลือของชุมชนพร้อมชื่อและเบอร์โทรศัพท์ของคุณ</p>
+                <p style="margin-top: 15px; font-weight: 600; color: #ef4444;">กรุณากดเฉพาะเมื่อเกิดเหตุฉุกเฉินเท่านั้น!</p>
+            </div>
+            <div class="modal-footer" style="justify-content: center;">
+                <button class="cancel-btn" onclick="document.getElementById('sosModal').classList.remove('show');">ยกเลิก</button>
+                <button class="sos-confirm-btn" id="confirmSosBtn" onclick="requestEmergencyHelp()">
+                    ส่งสัญญาณขอความช่วยเหลือ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/JS/config.js"></script>
+    <script src="/JS/api.js"></script>
+    <script src="/JS/toast.js"></script>
     <script src="/JS/menu.js"></script>
     <script src="/JS/nav.js"></script>
     <script src="/JS/map.js"></script>

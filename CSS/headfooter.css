@@ -1,48 +1,31 @@
 /* --- 1. Global Variables & Reset --- */
 :root {
 
-    /* --- Ritthiyawannalai Inspired Theme --- */
-    /* White + Sky Blue + Gold */
+    /* Bolder Ritthiyawannalai Inspired Theme */
+    --primary: #1D4ED8;      /* Deep Sapphire Blue */
+    --primary-light: #3B82F6;/* Vivid Blue */
+    --accent: #F59E0B;       /* Intense Gold/Orange */
+    --accent-dark: #B45309;  /* Deep Amber */
 
-    --primary: #2563EB;
-    /* Sky Blue */
+    --bg-color: #F0F4F8;     /* Crisp Light Gray-Blue */
+    --surface: #FFFFFF;      /* Pure White Surface */
+    --bg-dark: #E2E8F0;      /* Slate Gray for contrast */
 
-    --primary-light: #60A5FA;
-    /* Soft Blue */
-
-    --accent: #FACC15;
-    /* Gold Yellow */
-
-    --accent-dark: #EAB308;
-    /* Deep Gold */
-
-    --bg-color: #F8FBFF;
-    /* White Blue */
-
-    --surface: #FFFFFF;
-    /* Card */
-
-    --bg-dark: #EAF2FF;
-    /* Background Soft Blue */
-
-    --text-primary: #0F172A;
-    /* Main Text */
-
-    --text-secondary: #475569;
-
-    --text-tertiary: #94A3B8;
-
+    --text-primary: #020617; /* Very Dark Slate (almost black) for sharp contrast */
+    --text-secondary: #334155;
+    --text-tertiary: #64748B;
     --text-light: #ffffff;
+    --border: #CBD5E1;
 
-    --border: #E2E8F0;
+    /* Elevated Shadows */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    --shadow-colored: 0 10px 25px -5px rgba(29, 78, 216, 0.4);
 
-    /* Shadows */
-    --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.04);
-    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 6px 14px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
-
-    --easing: cubic-bezier(0.16, 1, 0.3, 1);
+    --easing: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 * {
@@ -83,13 +66,13 @@
 }
 
 .page-title {
-    font-size: 1.8rem;
-    font-weight: 700;
+    font-size: 2.2rem;
+    font-weight: 800;
     color: var(--text-primary);
+    letter-spacing: -0.5px;
     margin-bottom: 5px;
     display: flex;
     align-items: center;
-    gap: 12px;
 }
 
 .page-subtitle {
@@ -109,15 +92,18 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 10px;
     transition: all 0.3s var(--easing);
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    box-shadow: var(--shadow-colored);
 }
 
 .btn-add:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-    background: #1d4ed8;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 30px -5px rgba(29, 78, 216, 0.5);
+    background: #1E40AF; /* Even deeper blue on hover */
+}
+
+.btn-add:active {
+    transform: translateY(1px) scale(0.98);
 }
 
 /* --- 5. Unified Modals --- */
@@ -173,7 +159,6 @@
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 10px;
 }
 
 .close-modal {
@@ -231,15 +216,12 @@
 
 /* --- 2. Navbar --- */
 .navbar {
-    background: linear-gradient(135deg,
-            var(--primary),
-            var(--primary-light));
-    backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    filter: drop-shadow(0 4px 12px rgba(29, 78, 216, 0.3));
     padding: 1rem 0;
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: var(--shadow-sm);
     border-bottom: 4px solid var(--accent);
 }
 
@@ -256,15 +238,21 @@
 }
 
 .navbar .logo {
-    font-size: 1.3rem;
-    font-weight: 700;
+    font-size: 1.55rem;
+    font-weight: 800;
     color: white;
-    letter-spacing: 0.3px;
-    transition: transform 0.2s ease;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
 }
 
+
 .navbar .logo:hover {
-    transform: scale(1.02);
+    transform: scale(1.04) translateY(-1px);
+    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .navbar nav {
@@ -282,7 +270,6 @@
     position: relative;
     display: flex;
     align-items: center;
-    gap: 5px;
 }
 
 .navbar nav a:hover {
@@ -365,7 +352,6 @@
 .nav-menu a {
     padding: 12px 24px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    gap: 10px;
     font-size: 1rem;
 }
 
@@ -502,10 +488,6 @@
     transform: scale(1.02);
 }
 
-.img-overlay i {
-    font-size: 2rem;
-    margin-bottom: 5px;
-}
 
 .img-overlay span {
     font-size: 0.9rem;
@@ -552,7 +534,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
 }
 
 .mini-edit-btn {
@@ -591,7 +572,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -638,14 +618,9 @@
     align-items: center;
 }
 
-.input-with-icon i {
-    position: absolute;
-    left: 12px;
-    color: var(--text-secondary);
-}
 
 .input-with-icon input {
-    padding-left: 35px !important;
+    padding-left: 12px !important;
 }
 
 .edit-group label {
@@ -733,6 +708,10 @@
     position: relative;
 
     transition: all .25s ease;
+    
+    /* Better touch hit area for mobile */
+    min-height: 56px;
+    flex-direction: column;
 }
 
 /* vertical divider */
@@ -761,4 +740,117 @@
 .footer-menu a.active {
     color: var(--accent);
     font-weight: 700;
+}
+
+/* --- 10. SOS Emergency Button --- */
+.sos-btn {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 65px;
+    height: 65px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    z-index: 9999;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: sosPulse 2s infinite;
+}
+
+.sos-btn:hover {
+    transform: scale(1.1) translateY(-5px);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.6);
+}
+
+.sos-btn:active {
+    transform: scale(0.95);
+}
+
+@keyframes sosPulse {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+#sosModal {
+    z-index: 10000;
+}
+
+#sosModal .modal-header {
+    background: linear-gradient(135deg, #ef4444, #f87171);
+    border-bottom: 4px solid #b91c1c;
+    color: white;
+}
+
+#sosModal .modal-header h3 i,
+#sosModal .modal-header .close-modal {
+    color: white;
+}
+
+#sosModal .modal-header .close-modal:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+#sosModal .modal-content {
+    max-width: 400px;
+    text-align: center;
+}
+
+.sos-warning-icon {
+    font-size: 4rem;
+    color: #ef4444;
+    margin-bottom: 15px;
+    animation: shake 0.5s infinite;
+}
+
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.sos-confirm-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    width: 100%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+}
+
+.sos-confirm-btn:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .sos-btn {
+        bottom: 85px;
+        right: 15px;
+        width: 60px;
+        height: 60px;
+    }
 }

@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="profile-img-container">
                     <img class="profile-img" src="${imgUrl}" alt="Profile" onclick="document.getElementById('profileUpload').click()">
                     <div class="img-overlay" onclick="document.getElementById('profileUpload').click()">
-                        <i class="fas fa-camera"></i>
                         <span>เปลี่ยนรูป</span>
                     </div>
                 </div>
@@ -59,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="value-with-btn">
                             <span class="value">@${userData.username}</span>
                             <button class="mini-edit-btn" onclick="toggleEditSection('username')">
-                                <i class="fas fa-pencil-alt"></i>
+                                แก้ไข
                             </button>
                         </div>
                     </div>
@@ -72,10 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <div class="profile-actions-v2">
                     <button class="action-card-btn" onclick="toggleEditSection('password')">
-                        <i class="fas fa-lock"></i> เปลี่ยนรหัสผ่าน
+                        เปลี่ยนรหัสผ่าน
                     </button>
                     <button class="action-card-btn logout-btn-v2" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+                        ออกจากระบบ
                     </button>
                 </div>
 
@@ -84,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="edit-group">
                         <label>New Username</label>
                         <div class="input-with-icon">
-                            <i class="fas fa-at"></i>
                             <input type="text" id="newUsername" value="${userData.username}">
                         </div>
                     </div>
@@ -134,12 +132,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 300);
     } else {
-        alert("กรุณาเข้าสู่ระบบก่อนใช้งาน");
-        window.location.href = '/index.html';
+        showToast("กรุณาเข้าสู่ระบบก่อนใช้งาน", "warning");
+        setTimeout(() => {
+            window.location.href = '/index.html';
+        }, 1500);
     }
 });
-
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSZF-yh74Miq4cXom8m98IrTNiqVS2Ew7jHcA2USe3eD3zmNGQc0auSCpLV38P90Xi/exec';
 
 function toggleEditSection(type) {
     const usernameForm = document.getElementById('editUsernameForm');
@@ -160,26 +158,23 @@ function toggleEditSection(type) {
 async function updateProfileImage(base64) {
     const userData = JSON.parse(localStorage.getItem('userSession'));
     try {
-        const data = new URLSearchParams();
-        data.append('action', 'updateUser');
-        data.append('subAction', 'image');
-        data.append('oldUsername', userData.username);
-        data.append('imageFile', base64);
-
-        const response = await fetch(SCRIPT_URL, { method: 'POST', body: data });
-        const result = await response.json();
+        const result = await API.request('updateUser', {
+            subAction: 'image',
+            oldUsername: userData.username,
+            imageFile: base64
+        });
 
         if (result.success) {
             userData.image = result.newImage;
             localStorage.setItem('userSession', JSON.stringify(userData));
-            alert("เปลี่ยนรูปโปรไฟล์สำเร็จ!");
+            showToast("เปลี่ยนรูปโปรไฟล์สำเร็จ", "success");
         } else {
-            alert(result.message);
-            location.reload();
+            showToast(result.message, "error");
+            setTimeout(() => location.reload(), 1500);
         }
     } catch (error) {
         console.error("Image upload error:", error);
-        alert("ไม่สามารถเปลี่ยนรูปได้");
+        showToast("ไม่สามารถเปลี่ยนรูปได้: " + error.message, "error");
     }
 }
 
@@ -188,35 +183,32 @@ async function saveUsername() {
     const newUsername = document.getElementById('newUsername').value.trim();
     if (!newUsername || newUsername === userData.username) return;
 
-    if (!confirm("ยืนยันการเปลี่ยน Username? (เปลี่ยนได้วันละ 1 ครั้ง)")) return;
-
+    // We'll proceed with direct save or toast confirmation to keep it modern
     const saveBtn = document.querySelector('#editUsernameForm .save-btn');
+    const oriText = saveBtn.innerText;
     saveBtn.disabled = true;
     saveBtn.innerText = "กำลังบันทึก...";
 
     try {
-        const data = new URLSearchParams();
-        data.append('action', 'updateUser');
-        data.append('subAction', 'username');
-        data.append('oldUsername', userData.username);
-        data.append('newUsername', newUsername);
-
-        const response = await fetch(SCRIPT_URL, { method: 'POST', body: data });
-        const result = await response.json();
+        const result = await API.request('updateUser', {
+            subAction: 'username',
+            oldUsername: userData.username,
+            newUsername: newUsername
+        });
 
         if (result.success) {
-            alert("เปลี่ยน Username สำเร็จ!");
+            showToast("เปลี่ยน Username สำเร็จ", "success");
             userData.username = result.newUsername;
             localStorage.setItem('userSession', JSON.stringify(userData));
-            location.reload();
+            setTimeout(() => location.reload(), 1500);
         } else {
-            alert(result.message);
+            showToast(result.message, "error");
         }
     } catch (e) {
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+        showToast("เกิดข้อผิดพลาดในการเชื่อมต่อ", "error");
     } finally {
         saveBtn.disabled = false;
-        saveBtn.innerText = "บันทึกชื่อผู้ใช้";
+        saveBtn.innerText = oriText;
     }
 }
 
@@ -226,36 +218,34 @@ async function savePassword() {
     const newPass = document.getElementById('newPassword').value;
 
     if (!oldPass || !newPass) {
-        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+        showToast("กรุณากรอกข้อมูลให้ครบถ้วน", "warning");
         return;
     }
 
     const saveBtn = document.querySelector('#editPasswordForm .save-btn');
+    const oriText = saveBtn.innerText;
     saveBtn.disabled = true;
     saveBtn.innerText = "กำลังเปลี่ยน...";
 
     try {
-        const data = new URLSearchParams();
-        data.append('action', 'updateUser');
-        data.append('subAction', 'password');
-        data.append('oldUsername', userData.username);
-        data.append('oldPassword', oldPass);
-        data.append('newPassword', newPass);
-
-        const response = await fetch(SCRIPT_URL, { method: 'POST', body: data });
-        const result = await response.json();
+        const result = await API.request('updateUser', {
+            subAction: 'password',
+            oldUsername: userData.username,
+            oldPassword: oldPass,
+            newPassword: newPass
+        });
 
         if (result.success) {
-            alert("เปลี่ยนรหัสผ่านสำเร็จ!");
-            location.reload();
+            showToast("เปลี่ยนรหัสผ่านสำเร็จ", "success");
+            setTimeout(() => location.reload(), 1500);
         } else {
-            alert(result.message);
+            showToast(result.message, "error");
         }
     } catch (e) {
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+        showToast("เกิดข้อผิดพลาดในการเชื่อมต่อ", "error");
     } finally {
         saveBtn.disabled = false;
-        saveBtn.innerText = "เปลี่ยนรหัสผ่าน";
+        saveBtn.innerText = oriText;
     }
 }
 
