@@ -14,6 +14,42 @@ function toggleForm(formId) {
     }
 }
 
+// --- Phone Formatting Helper ---
+function formatPhoneNumber(value) {
+    if (!value) return value;
+    const phoneNumber = value.replace(/[^\d]/g, '');
+    const phoneNumberLength = phoneNumber.length;
+    if (phoneNumberLength < 4) return phoneNumber;
+    if (phoneNumberLength < 7) {
+        return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3)}`;
+    }
+    return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+}
+
+function setupPhoneInputs() {
+    const phoneInputs = ['regPhone', 'fgPhone'];
+    phoneInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', (e) => {
+                const formattedValue = formatPhoneNumber(e.target.value);
+                el.value = formattedValue;
+            });
+        }
+    });
+}
+document.addEventListener('DOMContentLoaded', setupPhoneInputs);
+
+// --- Password Complexity Checker ---
+function isStrongPassword(password) {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar;
+}
+
 async function login() {
     const user = document.getElementById('logUser').value.trim();
     const pass = document.getElementById('logPass').value;
@@ -62,9 +98,11 @@ async function register() {
     const passCon = document.getElementById('regPassCon').value;
     const imgInput = document.getElementById('regImg');
 
+    const phoneRaw = phone.replace(/[^\d]/g, '');
+
     if (!firstName || !lastName || !username || !phone || !pass) return showToast("กรุณากรอกข้อมูลให้ครบ", "warning");
-    if (phone.length !== 10 || isNaN(phone)) return showToast("เบอร์ต้องเป็นตัวเลข 10 หลัก", "warning");
-    if (pass.length < 5) return showToast("รหัสผ่านต้องมีอย่างน้อย 5 ตัวอักษร", "warning");
+    if (phoneRaw.length !== 10 || !phoneRaw.startsWith('0')) return showToast("เบอร์โทรศัพท์ไม่ถูกต้อง (ต้องขึ้นต้นด้วย 0 และมี 10 หลัก)", "warning");
+    if (!isStrongPassword(pass)) return showToast("รหัสผ่านไม่ปลอดภัยพอ (ต้องมี 8+ ตัวอักษร, พิมพ์ใหญ่, พิมพ์เล็ก, ตัวเลข และอักขระพิเศษ)", "warning");
     if (pass !== passCon) return showToast("รหัสผ่านไม่ตรงกัน", "warning");
 
     if (!CONFIG.SCRIPT_URL || CONFIG.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
@@ -97,7 +135,7 @@ async function register() {
             firstName: firstName,
             lastName: lastName,
             username: username,
-            phone: phone,
+            phone: phoneRaw,
             password: pass,
             imageFile: base64Image
         });
@@ -123,8 +161,10 @@ async function checkUserExists() {
     const firstName = document.getElementById('fgFirst').value.trim();
     const lastName = document.getElementById('fgLast').value.trim();
     const phone = document.getElementById('fgPhone').value.trim();
+    const phoneRaw = phone.replace(/[^\d]/g, '');
 
     if (!firstName || !lastName || !phone) return showToast("กรุณากรอกข้อมูลให้ครบถ้วน", "warning");
+    if (phoneRaw.length !== 10 || !phoneRaw.startsWith('0')) return showToast("เบอร์โทรศัพท์ไม่ถูกต้อง", "warning");
 
     const btn = document.getElementById('btnCheckUser');
     const oriText = btn.innerText;
@@ -135,7 +175,7 @@ async function checkUserExists() {
         const result = await API.request('checkUser', {
             firstName: firstName,
             lastName: lastName,
-            phone: phone
+            phone: phoneRaw
         });
 
         if (result.success) {
@@ -157,11 +197,12 @@ async function resetPassword() {
     const firstName = document.getElementById('fgFirst').value.trim();
     const lastName = document.getElementById('fgLast').value.trim();
     const phone = document.getElementById('fgPhone').value.trim();
+    const phoneRaw = phone.replace(/[^\d]/g, '');
     const newPassword = document.getElementById('fgNewPass').value;
     const newPasswordCon = document.getElementById('fgNewPassCon').value;
 
     if (!newPassword || !newPasswordCon) return showToast("กรุณากรอกรหัสผ่านใหม่ให้ครบถ้วน", "warning");
-    if (newPassword.length < 5) return showToast("รหัสผ่านใหม่ต้องมีอย่างน้อย 5 ตัวอักษร", "warning");
+    if (!isStrongPassword(newPassword)) return showToast("รหัสผ่านใหม่ไม่ปลอดภัยพอ", "warning");
     if (newPassword !== newPasswordCon) return showToast("รหัสผ่านใหม่ไม่ตรงกัน", "warning");
 
     const btn = document.getElementById('btnResetPass');
@@ -173,7 +214,7 @@ async function resetPassword() {
         const result = await API.request('resetPassword', {
             firstName: firstName,
             lastName: lastName,
-            phone: phone,
+            phone: phoneRaw,
             newPassword: newPassword
         });
 

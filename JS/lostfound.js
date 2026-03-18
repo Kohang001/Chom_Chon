@@ -36,6 +36,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Helper for phone formatting
+    const formatPhone = (num) => {
+        if (!num) return 'ไม่ระบุเบอร์';
+        let s = num.toString().replace(/[^\d]/g, '');
+        if (!s.startsWith('0')) s = '0' + s;
+        if (s.length !== 10) return s;
+        return `${s.slice(0, 3)}-${s.slice(3, 6)}-${s.slice(6)}`;
+    };
+
     // 1. ฟังก์ชันดึงจาก Cache (LocalStorage) เพื่อให้แสดงผลทันที
     const loadCache = () => {
         const userDataStr = localStorage.getItem('userSession');
@@ -145,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             outerDiv.querySelector('.safe-loc').textContent = item.Location;
             outerDiv.querySelector('.safe-desc').textContent = item.Details;
             outerDiv.querySelector('.safe-poster').textContent = item.PosterName || 'ไม่ระบุชื่อ';
-            outerDiv.querySelector('.safe-phone').textContent = item.PosterPhone ? (item.PosterPhone.toString().startsWith('0') ? item.PosterPhone : '0' + item.PosterPhone) : 'ไม่ระบุเบอร์';
+            outerDiv.querySelector('.safe-phone').textContent = formatPhone(item.PosterPhone);
             
             return outerDiv.outerHTML;
         }).join('');

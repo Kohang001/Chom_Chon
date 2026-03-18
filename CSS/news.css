@@ -303,6 +303,17 @@ button {
     .news-grid {
         grid-template-columns: 1fr;
     }
+
+    .news-filters {
+        width: 100%;
+        max-width: 100%;
+        justify-content: flex-start;
+        padding: 5px 15px;
+        margin-bottom: 20px;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
 }
 
 /* Skeleton */

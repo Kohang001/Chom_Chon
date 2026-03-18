@@ -573,13 +573,24 @@ function hashPassword(password) {
 function register(e) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName('Users');
-
   // ตรวจสอบว่ามี username นี้หรือยัง
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][2]).trim() === String(e.parameter.username).trim()) {
       return createResponse({ success: false, message: "Username already exists (มีชื่อผู้ใช้นี้แล้วในระบบ)" });
     }
+  }
+
+  // Backend Validation
+  const phone = String(e.parameter.phone || '').replace(/[^\d]/g, '');
+  const pass = String(e.parameter.password || '');
+  
+  if (phone.length !== 10 || !phone.startsWith('0')) {
+    return createResponse({ success: false, message: "เบอร์โทรศัพท์ไม่ถูกต้อง (ต้องขึ้นต้นด้วย 0 และมี 10 หลัก)" });
+  }
+  
+  if (!isStrongPassword(pass)) {
+    return createResponse({ success: false, message: "รหัสผ่านไม่ปลอดภัยพอตามมาตรฐานสากล" });
   }
 
   let imageUrl = "";
@@ -688,6 +699,11 @@ function resetPassword(e) {
 
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] === e.parameter.firstName && data[i][1] === e.parameter.lastName && String(data[i][3]) === String(e.parameter.phone)) {
+      const newPass = String(e.parameter.newPassword);
+      if (!isStrongPassword(newPass)) {
+        return createResponse({ success: false, message: "รหัสผ่านใหม่ไม่ปลอดภัยพอตามมาตรฐานสากล" });
+      }
+      
       // เข้ารหัสรหัสผ่านใหม่
       const hashedNewPassword = hashPassword(e.parameter.newPassword);
       sheet.getRange(i + 1, 5).setValue(hashedNewPassword);
@@ -696,4 +712,13 @@ function resetPassword(e) {
   }
 
   return createResponse({ success: false, message: "ไม่พบข้อมูลผู้ใช้ หรือข้อมูลยืนยันตัวตนไม่ถูกต้อง" });
+}
+
+function isStrongPassword(password) {
+  const minLength = 8;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumbers = /\d/.test(password);
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar;
 }
