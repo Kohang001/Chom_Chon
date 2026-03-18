@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChomChon - ของหายและของเจอ</title>
-    
+
     <!-- SEO & Social Sharing -->
     <meta name="description" content="ChomChon ของหาย-ของเจอ - แพลตฟอร์มแจ้งประกาศของหายและตามหาเจ้าของในชุมชน">
     <meta property="og:title" content="ChomChon - ของหายและของเจอ">
@@ -13,10 +13,12 @@
     <meta property="og:image" content="/assets/logo.png">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/logo.png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/CSS/lostfound.css">
     <link rel="stylesheet" href="/CSS/toast.css">
     <link rel="stylesheet" href="/CSS/headfooter.css">
@@ -33,9 +35,9 @@
                 <span></span>
             </button>
             <nav id="navMenu" class="nav-menu">
-                <a href="news.html">ข่าวสาร</a>
-                <a href="map.html">แผนที่</a>
-                <a href="lostfound.html" class="active">ของหาย-ของเจอ</a>
+                <a href="news.html">News</a>
+                <a href="lostfound.html" class="active">Lost & Found</a>
+                <a href="map.html">Map</a>
                 <div id="userProfile" style="display: flex; align-items: center; gap: 15px;">
                     <!-- Profile JS Inject -->
                 </div>
@@ -110,7 +112,8 @@
 
                     <div class="form-group">
                         <label for="itemName">ชื่อสิ่งของ</label>
-                        <input type="text" id="itemName" name="itemName" placeholder="เช่น กระเป๋าเงิน, กุญแจรถ" required>
+                        <input type="text" id="itemName" name="itemName" placeholder="เช่น กระเป๋าเงิน, กุญแจรถ"
+                            required>
                     </div>
 
                     <div class="form-row">
@@ -120,14 +123,15 @@
                         </div>
                         <div class="form-group">
                             <label for="itemLocation">สถานที่</label>
-                            <input type="text" id="itemLocation" name="itemLocation" placeholder="เช่น ตึก A, โรงอาหาร" required>
+                            <input type="text" id="itemLocation" name="itemLocation" placeholder="เช่น ตึก A, โรงอาหาร"
+                                required>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="itemDetails">รายละเอียดเพิ่มเติม</label>
-                        <textarea id="itemDetails" name="itemDetails" rows="3" placeholder="ระบุลักษณะเด่น หรือที่อยู่ที่ชัดเจน"
-                            required></textarea>
+                        <textarea id="itemDetails" name="itemDetails" rows="3"
+                            placeholder="ระบุลักษณะเด่น หรือที่อยู่ที่ชัดเจน" required></textarea>
                     </div>
 
                     <div class="form-group">
@@ -142,7 +146,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="cancel-btn" onclick="document.getElementById('addItemModal').classList.remove('show');">ยกเลิก</button>
+                <button class="cancel-btn"
+                    onclick="document.getElementById('addItemModal').classList.remove('show');">ยกเลิก</button>
                 <button type="submit" form="addItemForm" class="btn-add">
                     ยืนยันประกาศ
                 </button>
@@ -174,7 +179,8 @@
     </footer>
 
     <!-- SOS Emergency Button -->
-    <button class="sos-btn" id="sosTriggerBtn" onclick="document.getElementById('sosModal').classList.add('show')" title="ขอความช่วยเหลือด่วน">
+    <button class="sos-btn" id="sosTriggerBtn" onclick="document.getElementById('sosModal').classList.add('show')"
+        title="ขอความช่วยเหลือด่วน">
         SOS
     </button>
 
@@ -189,11 +195,14 @@
             </div>
             <div class="modal-body" style="text-align: center;">
                 <h4 style="color: #b91c1c; font-size: 1.3rem; margin-bottom: 10px;">คุณกำลังต้องการความช่วยเหลือ?</h4>
-                <p>ระบบจะทำการขอตำแหน่งที่ตั้งปัจจุบันของคุณ (GPS) และส่งข้อมูลไปยังศูนย์ช่วยเหลือของชุมชนพร้อมชื่อและเบอร์โทรศัพท์ของคุณ</p>
-                <p style="margin-top: 15px; font-weight: 600; color: #ef4444;">กรุณากดเฉพาะเมื่อเกิดเหตุฉุกเฉินเท่านั้น!</p>
+                <p>ระบบจะทำการขอตำแหน่งที่ตั้งปัจจุบันของคุณ (GPS)
+                    และส่งข้อมูลไปยังศูนย์ช่วยเหลือของชุมชนพร้อมชื่อและเบอร์โทรศัพท์ของคุณ</p>
+                <p style="margin-top: 15px; font-weight: 600; color: #ef4444;">กรุณากดเฉพาะเมื่อเกิดเหตุฉุกเฉินเท่านั้น!
+                </p>
             </div>
             <div class="modal-footer" style="justify-content: center;">
-                <button class="cancel-btn" onclick="document.getElementById('sosModal').classList.remove('show');">ยกเลิก</button>
+                <button class="cancel-btn"
+                    onclick="document.getElementById('sosModal').classList.remove('show');">ยกเลิก</button>
                 <button class="sos-confirm-btn" id="confirmSosBtn" onclick="requestEmergencyHelp()">
                     ส่งสัญญาณขอความช่วยเหลือ
                 </button>
